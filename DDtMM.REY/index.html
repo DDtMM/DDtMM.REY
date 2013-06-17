@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>REY: Regular Expression Editor</title>
+    <link rel="stylesheet" href="Content/pepper-grinder/jquery-ui-1.10.2.custom.css" />
+    <link rel="stylesheet" href="Content/ReyRegEx.css" />
+</head>
+<body>
+<header>
+    <div class="logo"  >
+        <span class="title">REY</span>
+        <span class="subtitle">Regular Expression Editor</span>
+    </div>
+    <div class="button" id="helpButton" style="vertical-align:top" >Help</div>
+    <span style="font-size:.625em; font-style:italic; float:right">(v0.2.1 2013-05-08)&nbsp;</span>
+</header>
+<div id="RegexEditor" class="fillHeight">
+<div id="inputPanel" class="panel">
+    <div id="patternPanel" class="panel">
+        <div class="panelTitle">
+            <span class="titleText" id="regularExpressionLabel">Regular Expression &nbsp;</span>
+            <div id="regexOptionsMenu" class="menu">
+                <div id="regexOptionsButton" class="menuLabel button" ></div>
+                <ul id="regexOptionsItemPanel" class="menuItemsPanel" >
+                    <li>
+                        <input type="checkbox" id="opt-reg-global" value="g" checked="checked" />
+                        <label for="opt-reg-global">Global (g)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="opt-reg-insensitive" value="i" />
+                        <label for="opt-reg-insensitive">Case Insensitve (i)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="opt-reg-multiline" value="m" />
+                        <label for="opt-reg-multiline">Multiline (m)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="opt-xregex-dotall" value="s" />
+                        <label for="opt-xregex-dotall">. all (s)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="opt-xregex-extended" value="x" />
+                        <label for="opt-xregex-extended">Extended (x)</label>
+                    </li>
+                    <li>
+                        <input type="checkbox" id="opt-xregex-explicitcapture" value="n" />
+                        <label for="opt-xregex-explicitcapture">Explicit Capture (n)</label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="patternEditor" class="fillHeight"></div>
+        <div id="patternEditorMessage">&nbsp;</div>
+ 
+    </div>
+    <div class="panelSplitter panelSplitterHeight">&nbsp;</div>
+    <div id="targetPanel" class="panel">
+        <div>
+            <div class="panelTitle">
+                <span class="titleText">Source Text</span> &nbsp;
+                <div class="button" id="loadUrlButton">Import Url</div>
+                <div class="button" id="loadFileButton">Import File</div>
+                <input type="file" id="importFile" /></div>
+            </div>
+        <div id="targetEditor" class="fillHeight"></div>
+
+    </div>
+</div>
+<div class="panelSplitter panelSplitterWidth">&nbsp;</div>
+<div id="rightPanel" class="panel">
+    <div class="panelTitle">
+        <span class="titleText" id="moduleName"></span> &nbsp;
+        <div id="changeModuleMenu" class="menu">
+        
+            <div id="changeModuleButton" class="menuLabel button">Tools</div>
+            <ul id="changeModuleItemPanel" class="menuItemsPanel" > </ul>
+ 
+        </div>
+    </div>
+    <div id="moduleContainer" class="fillHeight"></div>
+</div>
+<div id="docs" title="REY Help">
+    <div id="intro" title="Introduction">
+        <h1>Introduction</h1>
+        <p>REY Regular Expression Editor allows you to comprehensively evaluate any regular expression pattern using a variety of
+            convienent tools.  To do this, all you need to do is enter a regular expression and some text to test
+            against, and immediately you'll be able to visualize successful matches within your text.  After that,
+            you can use one of the tools on the right to further dive into your creations.
+        </p>
+        <span class="seeAlso">See Also:</span>
+        <ul>
+            <li><a href="#!tools"></a></li>
+            <li><a href="#!regexpmodifiers"></a></li>
+        </ul>
+    </div>
+    <div id="regexpmodifiers" title="Regular Expression Modifiers">
+        <h1>Regular Expression Modifiers</h1>
+        <p>
+            The behavior of your regular expression can be modified by changing the engine modifiers 
+            above the expression editor.  These modifiers are standard to most regular expression engines,
+            but you can use the Current Syntax Tool to view and syntatical differences from the flavor
+            of regular expressions you're used to as well as the differences created when a modifier is 
+            added or removed.
+        </p>
+
+        <h2>Global (g)</h2>
+        <p>When checked, all matches are found.  Otherwise only the first match will be shown.</p>
+        <h2>Case Insensitve (i)</h2>
+        <p>Performs a case insensitve search, so that a simple expression such a <em>FIND ME</em> would
+            match characters in a string such as <em>find me</em>, <em>Find Me</em>, and <em>fInD mE</em>.
+        </p>
+        <h2>Multiline (m)</h2>
+        <p>When checked, <em>^</em> and <em>$</em> match line starts and line ends respectively, instead of just the
+            start and end of the entire string.
+        </p>
+        <h2>. all (s)</h2>
+        <p>When checked, the <em>.</em> class will match any character, otherwise it will not match new lines.</p>
+        <h2>Extended (x)</h2>
+        <p>Allows for freespacing (whitespaces are ignored) and line comments.</p>
+        <h2>Explicit Capture (n)</h2>
+        <p>Only named capture groups are captured when this is enabled.</p>
+        <span class="seeAlso">See Also:</span>
+        <ul>
+            <li><a href="http://xregexp.com/">XRegExp project website</a></li>
+        </ul>
+    </div>
+    <div id="tools" title="Tools">
+        <h1>Tools</h1>
+        <p>Currently there are four tools available on the right panel of the application, but there is certainly
+            room for more.
+        </p>
+        <h2>Current Syntax</h2>
+        <p>Displays the entities available for a regular expression, given the currently selected modifiers.
+            Entities the may not be available with other options are highlighted in yellow.
+        </p>
+        <h2>Find and Replace</h2>
+        <p>Displays the results of replacing matched text with either plain text (that can include references
+            to groups $1 to $9), or the results of a javascript function.  Use the following template to help 
+            get you started using a function to replace text.
+        </p>
+        <code>
+function viewCaptures () { 
+    var result = '';
+    for (var i = 0, il = arguments.length - 2; i &lt; il; i++) {
+        result += i.toString() + ': ' + arguments[i] + '\n';	
+    }
+    return result;
+}
+        </code>
+        <h2>Match Visualizer</h2>
+        <p>Shows where matches occur in a document and breaks the matches down into their respective groups.</p>
+        <h2>String Split</h2>
+        <p>Breaks the text up into an array, using the matched text as a delimiter.  In JavaScript any
+            text matched in a group is included in the array.
+        </p>
+    </div>
+    <div id="roadmap" title="Road Map">
+        <h1>REY Road Map</h1>
+        <p>
+            I hope to add the following real soon.
+        </p>
+        <h2>General</h2>
+        <ul>
+            <li>Save/Load Regular Expressions</li>
+            <li>Save/Load Session: Regular Expression + Input Text + Tool settings.</li>
+            <li>Show capture groups in regular expression editor and improved syntax highlighting.</li>
+        </ul>
+        <h2>Tools</h2>
+        <ul>
+            <li>Regular Expression Tree: Visualize the effect of grouping and conditonals on a regular expression
+                and view the expression in English.
+            </li>
+            <li>Recursive Matches: When a match is found, the expression is then applied on the captures.  One
+                use would be to find an XML tag, capture text in between, and then get the tags within.
+            </li>
+            <li>Custom Tools:  Allow the import of user defined tools.  Maybe a repository in the future.
+            </li>
+            <li>Add lots of new features in the existing such as syncing the fnd and replace output scroll with
+                the source input scroll, the match visualizer displaying named captures, and the string split
+                results overlayed on the source input.
+            </li>
+        </ul>
+        <h2>Misc</h2>
+        <ul>
+            <li>Clean up code</li>
+        </ul>
+    </div>
+    <div id="acknowledgements" title="Acknowledgements">
+        <h1>Acknowledgements</h1>
+        <p>It fills me with awe whenever I realize that any program I create is built upon a foundation of
+            a seemingly infinite array of projects, applications, and frameworks.  REY would not have 
+            been possible without, and in the very least, the following projects/sites/applications.
+        </p>
+        <h2>Open Source Projects</h2>
+        <h3><a href="http://xregexp.com/">XRegExp</a></h3>
+        <p>XRegExp extends JavaScript's native RegExp object to add a lot of useful features and fix some 
+            cross-browser issues.  You can safely use it in place of RegExp without an icompatibility issues.</p>
+        <h3><a href="http://ace.ajax.org/">Ace Code editor</a></h3>
+        <p>The Ace Code Editor is the editor used throughout all the application.  Definitely the best 
+            browser based code editor.
+        </p>
+        <h3><a href="http://jquery.com/">jQuery</a> and <a href="http://jqueryui.com/">jQuery UI</a></h3>
+        <p>JavaScript would be such a pain without jQuery.</p>
+        <h3><a href="http://modernizr.com/">Modernizr</a></h3>
+        <p>One day we will live in a word without cross-browser compatibility issues.  
+            Until that day there is Modernizr.</p>
+        <h2>Reference Sites</h2>
+        <h3><a href="http://www.regular-expressions.info/">regular-expressions.info/</a></h3>
+        <p>I've been using this website forever.  Everything you need to know about Regular Expressions you can find here.</p>
+        <h3><a href="http://www.w3schools.com/">w3 schools</a></h3>
+        <p>This always seems to comes u first when I search for anything JavaScript...</p>
+        <h3><a href="http://developer.mozilla.org">Mozilla Developer Network</a></h3>
+        <p>... and this comes up second or third.  Plus it was a little more clear about Regular Expressions in JavaScript.</p>
+        <h3><a href="http://www.html5rocks.com/">HTML5 ROCKS</a></h3>
+        <p>I didn't know LocalStorage existed, or that you could upload files without a server.  Thanks HTML5 ROCKS!</p>
+        <h2>Other Regular Expression Editors</h2>
+        <p>Imitation is the sincereness form of flattery.  I hope the makers of these programs agree.</p>
+        <h3><a href="http://www.gskinner.com/RegExr/">gskinner's RegExr</a></h3>
+        <p>Probably the best online regular expression editing tool.  Made in Flash.</p>
+        <h3>... that other one...</h3>
+        <p>There was another one where I got the idea to upload files and import urls from.  
+            I apologize to the author for forgetting.</p>
+    </div>
+
+    <div id="about" title="About">
+        <h1>About REY</h1>
+        <p>REY is by <a href="http://daniel.gimenez.biz">Daniel Gimenez</a> &copy; 2013.</p>
+        <p>
+            If you have a question, found a bug, or have a feature request.  Feel free to email 
+            me at <a href="mailto:RexRegEx@gimenez.biz">RexRegEx@gimenez.biz</a>
+        </p>
+    </div>
+</div>
+</div>
+<div id="loader">
+    <img src="/images/loader3.gif" />
+    <div id="loading-message">LOADING</div>
+</div>
+<!--<script src="Scripts/jquery-1.9.1.js"></script>
+<script src="Scripts/jquery-ui-1.10.2.custom.js"></script>
+<script src="Scripts/jquery.ui.touch-punch.js"></script>
+<script src="Scripts/modernizr-2.6.2.js"></script>
+<script src="Scripts/dgStorage.js"></script>
+<script src="Scripts/ace/ace.js"></script>
+<script src="Scripts/dgEventManager.js"></script>
+<script src="Scripts/xregexp.js"></script>
+<script src="Scripts/reyParser.js"></script>
+<script src="Scripts/reyRegExMap.js"></script>
+<script src="Scripts/dgSimpleTree.js"></script>
+<script src="Scripts/dgblockUtil.js"></script>
+<script src="Scripts/dgSelectDialog.js"></script>
+<script src="Scripts/reyMapVisualizer.js"></script>
+<script src="Scripts/reyFindAndReplace.js"></script>
+<script src="Scripts/reyStringSplit.js"></script>
+<script src="Scripts/reyCurrentSyntax.js"></script>
+<script src="Scripts/reyModules.js"></script>
+<script src="Scripts/dgTextRowColFinder.js"></script>
+<script src="Scripts/dgDocs.js"></script>
+<script src="Scripts/reyRegEx.js" type="text/javascript" ></script>-->
+<script src="scripts/ace-min/ace.js"></script> 
+<script src="scripts/minified.js" type="text/javascript" ></script>
+</body>
+</html>

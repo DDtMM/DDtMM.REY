@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C5D48B97-108A-418A-A058-31B1F32E1CBD}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DDtMM.REY</RootNamespace>
+    <AssemblyName>DDtMM.REY</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PublishDatabases>false</PublishDatabases>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EcmaScript.NET">
+      <HintPath>..\packages\EcmaScript.Net.1.0.1.0\lib\net20\EcmaScript.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="Yahoo.Yui.Compressor">
+      <HintPath>..\packages\YUICompressor.NET.2.2.0.0\lib\NET20\Yahoo.Yui.Compressor.dll</HintPath>
+    </Reference>
+    <Reference Include="Yahoo.Yui.Compressor.Build.MsBuild">
+      <HintPath>..\packages\YUICompressor.NET.MSBuild.2.2.1.0\lib\NET20\Yahoo.Yui.Compressor.Build.MsBuild.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\images\external-black.png" />
+    <Content Include="Content\images\icons\external-link-icon.gif" />
+    <Content Include="Content\images\icons\icon-doc-12.png" />
+    <Content Include="Content\images\icons\icon-doc-16.png" />
+    <Content Include="Content\images\icons\icon-help-16.png" />
+    <Content Include="Content\images\icons\icon-help-24.png" />
+    <Content Include="Content\images\icons\icon-help-48.png" />
+    <Content Include="Content\images\icons\icon-inet-24.png" />
+    <Content Include="Content\images\icons\icon-inet-48.png" />
+    <Content Include="Content\images\icons\icon-minus-16.png" />
+    <Content Include="Content\images\icons\icon-plus-16.png" />
+    <Content Include="Content\images\icons\icon-settings-24.png" />
+    <Content Include="Content\images\icons\icon-settings-48.png" />
+    <Content Include="Content\images\icons\icon-upload-24.png" />
+    <Content Include="Content\images\icons\icon-upload-48.png" />
+    <Content Include="Content\images\icons\icon-widget-24.png" />
+    <Content Include="Content\images\icons\icon-widget-48.png" />
+    <Content Include="Content\images\log_error.png" />
+    <Content Include="Content\images\log_info.png" />
+    <Content Include="Content\images\log_warning.png" />
+    <Content Include="Content\images\reyback.png" />
+    <Content Include="Content\images\reyback2.png" />
+    <Content Include="Content\pepper-grinder\images\animated-overlay.gif" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_diagonal-maze_20_6e4f1c_10x10.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_diagonal-maze_40_000000_10x10.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_10_eceadf_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_10_f8f7f6_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_15_eceadf_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_15_f7f3de_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_15_ffffff_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_65_654b24_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-bg_fine-grain_68_b83400_60x60.png" />
+    <Content Include="Content\pepper-grinder\images\ui-icons_222222_256x240.png" />
+    <Content Include="Content\pepper-grinder\images\ui-icons_3572ac_256x240.png" />
+    <Content Include="Content\pepper-grinder\images\ui-icons_8c291d_256x240.png" />
+    <Content Include="Content\pepper-grinder\images\ui-icons_b83400_256x240.png" />
+    <Content Include="Content\pepper-grinder\images\ui-icons_fbdb93_256x240.png" />
+    <Content Include="Content\pepper-grinder\images\ui-icons_ffffff_256x240.png" />
+    <Content Include="Content\pepper-grinder\jquery-ui-1.10.2.custom.css" />
+    <Content Include="Content\ReyRegEx.css" />
+    <Content Include="images\loader.gif" />
+    <Content Include="Content\images\greyback.png" />
+    <Content Include="images\loader2.gif" />
+    <Content Include="images\loader3.gif" />
+    <Content Include="Content\images\redback.png" />
+    <Content Include="index.html" />
+    <Content Include="Scripts\ace-min\ace.js" />
+    <Content Include="Scripts\ace-min\mode-javascript.js" />
+    <Content Include="Scripts\ace-min\mode-text.js" />
+    <Content Include="Scripts\ace-min\theme-dawn.js" />
+    <Content Include="Scripts\ace-min\theme-monokai.js" />
+    <Content Include="Scripts\ace-min\worker-javascript.js" />
+    <Content Include="Scripts\ace\ace.js" />
+    <Content Include="Scripts\ace\theme-dawn.js" />
+    <Content Include="Scripts\ace\theme-monokai.js" />
+    <Content Include="Scripts\ace\worker-javascript.js" />
+    <Content Include="Scripts\dgDocs.js" />
+    <Content Include="Scripts\dgTextRowColFinder.js" />
+    <Content Include="Scripts\reyModules.js" />
+    <Content Include="Scripts\jquery.ui.touch-punch.js" />
+    <Content Include="Scripts\Minified.js" />
+    <Content Include="Scripts\reyCurrentSyntax.js" />
+    <Content Include="Scripts\reyStringSplit.js" />
+    <Content Include="Scripts\reyFindAndReplace.js" />
+    <Content Include="Scripts\dgblockUtil.js" />
+    <Content Include="Scripts\dgSelectDialog.js" />
+    <Content Include="Scripts\dgEventManager.js" />
+    <Content Include="Scripts\jquery-ui-1.10.2.custom.js" />
+    <Content Include="Scripts\dgStorage.js" />
+    <Content Include="Scripts\reyMapVisualizer.js" />
+    <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\reyParser.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\reyRegEx.js" />
+    <Content Include="Scripts\reyRegExMap.js" />
+    <Content Include="Scripts\dgSimpleTree.js" />
+    <Content Include="Scripts\xregexp.js" />
+    <Content Include="Scripts\_references.js" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="GetProxy.ashx.cs">
+      <DependentUpon>GetProxy.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GetProxy.ashx" />
+    <Content Include="packages.config" />
+    <Content Include="build\minify.proj" />
+    <None Include="Properties\PublishProfiles\rey.gimenez.biz.pubxml" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>50926</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:52846/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  -->
+  <Target Name="AfterBuild">
+    <MSBuild Projects="build\minify.proj" />
+  </Target>
+</Project>
