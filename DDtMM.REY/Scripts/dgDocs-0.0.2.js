@@ -1,12 +1,5 @@
 ﻿/*
-options:
-nodes: object with nodes.
-dataTemplate: default dataTemplate.
-node properties:
-dataTemplate (optional): jquery object to clone.  if none is provide, the parents' dataTemplate is used
-children: an array of child nodes (optional)
-id: node id
-value: either a primitave value, or object.
+msdn like help docs
 */
 $.widget("dg.docs", {
 
@@ -15,8 +8,6 @@ $.widget("dg.docs", {
     },
 
     _create: function () {
-        var my = this;
-
         this.element.hide();
         this.isOpen = false;
 
@@ -31,8 +22,9 @@ $.widget("dg.docs", {
 
         $displayElement = $('<div />', { 'class': 'dg-docs' }).append([
             $nav = $('<div />', { 'class': 'dg-docs-nav' }),
-            $content = $('<div />', { 'class': 'dg-docs-content' }),
+            $content = $('<div />', { 'class': 'dg-docs-content' })
         ]);
+
         $nav.simpleTree({
             click: function (ev, data) { my._displayContent(data.node.id); }
         });
@@ -41,7 +33,7 @@ $.widget("dg.docs", {
 
         for (var i = 0, il = (docPages = this.element.children()).length; i < il; i++) {
             page = docPages[i];
-            this.docs[page.id] = { id: page.id, value: page.title }
+            this.docs[page.id] = { id: page.id, value: page.title };
         }
 
         $nav.simpleTree('addNodes', this.docs);
@@ -82,7 +74,7 @@ $.widget("dg.docs", {
             href = this.href;
             if ((hashIndex = href.indexOf('#!')) > -1) {
                 // link to another document
-                if (this.innerHTML == '') this.innerHTML = my.docs[href.substr(hashIndex + 2)].value;
+                if (!this.innerHTML) this.innerHTML = my.docs[href.substr(hashIndex + 2)].value;
                 $(this).click(function (ev) {
                     ev.preventDefault();
                     my._displayContent(this.href.substr(this.href.indexOf('#!') + 2));

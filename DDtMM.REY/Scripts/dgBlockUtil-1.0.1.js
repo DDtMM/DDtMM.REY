@@ -1,4 +1,9 @@
-﻿var dgBlockUtil = (function ($) {
+﻿/***
+By: Daniel Gimenez
+License: Freeware
+Some useful functions for dealing with block objects
+***/
+var dgBlockUtil = (function ($) {
     var heightElements = [],
         widthElements = [],
         ignorePositionRe = /absolute|fixed/i,
@@ -12,7 +17,7 @@
 
     $.fn.fillHeight = function () {
         return this.each(attachForFillHeight);
-    }
+    };
 
     function attachForFillHeight(index, elem) {
         var $elem = $(elem);
@@ -21,7 +26,7 @@
             heightElements.push($elem);
             $elem.parent().on('resize', function () { fillHeight($elem); });
         }
-    };
+    }
 
     function fillAllHeight() {
         for (var i in heightElements) fillHeight(heightElements[i]);
@@ -43,7 +48,7 @@
         });
 
         $elem.height(Math.floor(Math.max(0, $elem.height() - $elem.outerHeight(true) + $parent.height() - usedHeight)));
-    };
+    }
 
     $.fn.moveUnder = function ($elem, offsetTop) {
         var pos = $elem.offset();

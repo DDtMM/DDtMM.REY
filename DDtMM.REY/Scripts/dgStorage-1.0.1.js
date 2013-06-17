@@ -1,4 +1,26 @@
-﻿var dgStorage = (function () {
+﻿/***
+By: Daniel Gimenez
+License: Freeware
+Description:
+Useful for text editors, keeps track of line breaks in a string, by searching for newline chars.
+NOTE: We're going for speed here, so there are few checks for valid input
+***/
+var dgStorage = (function () {
+    var trackedElements = [];
+
+    // stores value for later use
+    // returns true if can use local storage
+    function set(key, value) {
+        return storageProivder.set(key, JSON.stringify(value));
+    }
+
+    // stores value for later use
+    function get(key) {
+        return JSON.parse(storageProivder.get(key));
+    }
+
+
+    // empty storage provider
     var storageProvider = function () {
         return {
             get: function () { },
@@ -7,19 +29,7 @@
         };
     };
 
-    var trackedElements = [];
-
-    // stores value for later use
-    // returns true if can use local storage
-    function set(key, value) {
-        return storageProivder.set(key, JSON.stringify(value));
-    };
-
-    // stores value for later use
-    function get(key) {
-        return JSON.parse(storageProivder.get(key));
-    };
-
+    // provides access to local storage 
     var localProvider = (function () {
         return {
             get: function (key) {
@@ -35,10 +45,11 @@
         };
     })();
 
+    // provides access to cookie storage
     var cookieProvider = (function () {
         var re = new RegExp(' ', 'i'),
             farFutureDate = new Date(),
-            removeDate = new Date() // an earlier date to expire the cookie
+            removeDate = new Date(); // an earlier date to expire the cookie
 
         farFutureDate.setDate(farFutureDate.getDate() + 7304);
         removeDate.setDate(removeDate.getDate() - 1);
@@ -63,12 +74,12 @@
             remove: function (key) {
                 setCookie(key, '', removeDate);
             }
-        }
+        };
 
         return my;
     })();
 
-
+    // tests a provider to see if it works in the current context
     function testProvider(provider) {
         var testValue = 'as#d31%r3120ksd$v013!41-zzz0&&1';
         try {
@@ -85,7 +96,7 @@
     function val (key, value) {
         if (value === undefined) return get(key);
         else return set(key, value);
-    };
+    }
 
     // saves an element, using the element id as the key.  
     // if key is passed that is used instead
@@ -93,7 +104,8 @@
     // if an input is passed, that appropriate value is saved.
     // for radios and checkboxes, the checkstate and value is saved.
     function saveElement(elem, key) {
-        if (key == null) key = elem.id;
+        if (!key) key = elem.id || elem.name;
+
         switch (elem.nodeName) {
             case 'INPUT':
                 var type = (elem.type || 'text').toLowerCase();
@@ -101,6 +113,7 @@
                     case 'checkbox':
                     case 'radio':
                         val(key + '.checked', elem.checked || false);
+                        break;
                     default:
                         val(key + '.value', elem.value);
                         break;
@@ -121,7 +134,7 @@
 
     // loads an element, using the element id as the key
     function loadElement(elem, key) {
-        if (key == null) key = elem.id;
+        if (!key) key = elem.id || elem.name;
         var value;
 
         switch (elem.nodeName) {
@@ -130,14 +143,15 @@
                 switch (type) {
                     case 'checkbox':
                     case 'radio':
-                        if ((value = val(key + '.checked')) != null) elem.checked = value;
+                        if ((value = val(key + '.checked'))) elem.checked = value;
+                        break;
                     default:
-                        if ((value = val(key + '.value')) != null) elem.value = value;
+                        if ((value = val(key + '.value'))) elem.value = value;
                         break;
                 }
                 break;
             case 'SELECT':
-                if ((value = val(key + '.selected')) != null) {
+                if ((value = val(key + '.selected'))) {
                     for (var i = 0, il = elem.options.length; i < il; i++) {
                         if (value.indexOf(elem.options[i].value) >= 0) {
                             elem.options[i].selected = true;
@@ -159,19 +173,20 @@
         trackedElements.push({ elem: elem, key: key });
     }
 
+    // saves all elements currently being tracked
     function saveTrackedElements() {
         for (var i = 0, il = trackedElements.length; i < il; i++) {
             saveElement(trackedElements[i].elem, trackedElements[i].key);
         }
-    };
+    }
 
     var my = {
         val: val,
         saveElement: saveElement,
         loadElement: loadElement,
-        noStorage: false,
+        noStorage: true,
         localStorageEnabled: false,
-        cookiesEnabled: false,
+        cookiesEnabled: false
     };
 
     if (testProvider(localProvider)) {

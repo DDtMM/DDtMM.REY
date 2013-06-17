@@ -1,4 +1,11 @@
-﻿var textRowColFinder = function (text) {
+﻿/***
+By: Daniel Gimenez
+License: Freeware
+Description:
+Useful for text editors, keeps track of line breaks in a string, by searching for newline chars.
+NOTE: We're going for speed here, so there are few checks for valid input
+***/
+var TextRowColFinder = function (text) {
     var reBreaks = /\n/g;
     var lineStarts = [],
         match;
@@ -17,6 +24,9 @@
 };
 
 (function () {
+    // returns { row, column } starting from 0, of a charIndex.
+    // startingLow and startingHigh are line indices, can be null, and narrow the search range.
+    // consider passing these values when doing a sequential search of char indices.
     this.findRowCol = function (charIndex, startingLow, startingHigh) {
         var foundRow = null,
 			low = (startingLow || 0),
@@ -34,11 +44,12 @@
             } else high = mid;
         }
 
-        return { row: foundRow, col: charIndex - this.lineStarts[foundRow] }
+        return { row: foundRow, col: charIndex - this.lineStarts[foundRow] };
     };
 
+    // returns the char index from a given row and column.
     this.findCharIndex = function (row, col) {
         return this.lineStarts[row] + col;
     };
 
-}).call(textRowColFinder.prototype);
+}).call(TextRowColFinder.prototype);

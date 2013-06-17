@@ -81,7 +81,7 @@
         var lastToken;
         var match;
  
-        var textFinder = new textRowColFinder(text);
+        var textFinder = new TextRowColFinder(text);
 
         var result = {
             tokens: [],

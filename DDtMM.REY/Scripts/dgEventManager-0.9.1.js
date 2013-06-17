@@ -1,7 +1,15 @@
-﻿var eventManager = (function () {
+﻿/***
+By: Daniel Gimenez
+License: Freeware
+Description:
+A unified event manager module, providing a single point of access for DOM events, jquery events, 
+and javascript object events.
+***/
+var eventManager = (function () {
     // calls the event manager methods from source.
     var eventManagerOnSource = function (source) {
-        this.source = (source.length != null) ? source : [source];
+        // source is an array, if the passed element is already an array then keep it that way
+        this.source = (source.length) ? source : [source];
     };
     (function () {
         this._callEvents = function (eventString, func) {
@@ -26,7 +34,7 @@
                 args.push(arguments[a]);
             }
             for (var i = 0, il = this.source.length; i < il; i++) {
-                args.splice(0, 1, this.source[i])
+                args.splice(0, 1, this.source[i]);
                 func.apply(eventManager, args);
             }
         };
@@ -46,78 +54,81 @@
         // bubble will fire an event after an event has been fired.  params.source, params.event
         this.sequence = function (eventString, sequenceName, params) {
             return this._callEvents(eventString, eventManager.registerSequence, sequenceName, params);
-        }
+        };
 
         // triggers an event.
         this.trigger = function (eventString, data) {
             return this._callEvents(eventString, eventManager.trigger, data);
-        }
+        };
 
         // triggers an event after delay ms.  Restart clears events waiting to trigger of same type.
         this.delayedTrigger = function (eventString, data, delay, restart) {
             return this._callEvents(eventString, eventManager.startTimedTrigger, data, delay, restart);
-        }
+        };
 
         // cancels delayed trigger.
         this.cancelTrigger = function (eventString) {
             return this._callEvents(eventString, eventManager.cancelTimedTrigger);
-        }
+        };
 
         // removes all subscribed events for source.
         this.remove = function () {
             return this._callSources("", eventManager.removeSource);
-        }
+        };
     }).call(eventManagerOnSource.prototype);
 
     window.EVMGR = function (source) {
         return new eventManagerOnSource(source);
-    }
+    };
 
-    var triggerInfo = function (data, event, evChain) {
+    var TriggerInfo = function (data, event, evChain) {
         this.data = data;
         this.event = event;
         this.timerId = -1;
-        this.eventChain = evChain;
+        this.EventChain = evChain;
     };
     (function () {
 
         this.doTrigger = function () {
-            this.event.trigger(this.data, this.eventChain);
+            this.event.trigger(this.data, this.EventChain);
             this.cancel();
-        }
+        };
         
         this.cancel = function () {
             clearTimeout(this.timerId);
             this.event._removeTimedTrigger(this);
         };
 
-    }).call(triggerInfo.prototype);
+    }).call(TriggerInfo.prototype);
 
     // creates a chain of events
-    var eventChain = function (event, priorChain) {
+    var EventChain = function (event, priorChain) {
         this.event = event;
         this.domEvent = null;
         this.prior = priorChain;
         this.originalEvent = (!priorChain) ? event : priorChain.originalEvent;
         this.cancelled = priorChain && priorChain.cancelled;
     };
-    var eventHandler = function (source, name) {
+
+    /**********
+    BEGIN EVENT HANDLER 
+    **********/
+    var EventHandler = function (source, name) {
         this.source = source;
         this.name = name;
         this.subscribers = [];
         this.timedTriggers = [];
         this.triggerCount = 0;
 
-        // if an event is attached to a DOM object, this is the callback to eventHandler.trigger method
+        // if an event is attached to a DOM object, this is the callback to EventHandler.trigger method
         this.domCallback = null;
 
         // try to subscribe to DOM event
         if (source.addEventListener || source.attachEvent) {
             var self = this;
-            this.domCallback = function (event)
-            {
-                self.trigger(event, new eventChain(event));
-            }
+            this.domCallback = function (event) {
+                self.trigger(event, new EventChain(event));
+            };
             if (source.addEventListener) source.addEventListener(name, this.domCallback);
             else source.attachEvent(name, this.domCallback);
         }
@@ -127,7 +138,7 @@
         // executes the event, and returns the chain of events
         this.trigger = function (data, evChain) {
             if (!evChain || !evChain.cancelled) {
-                evChain = new eventChain(this, evChain);
+                evChain = new EventChain(this, evChain);
                 var self = this;
                 for (var i in this.subscribers) {
                     this.subscribers[i].call(this.source, data, evChain);
@@ -154,10 +165,10 @@
         };
 
         this.startTimedTrigger = function (data, delay, restart, evChain) {
-            if (restart == true) this.cancelAllTimedTriggers();
+            if (restart) this.cancelAllTimedTriggers();
             this.triggerCount++;
-            var tt = new triggerInfo(data, this, evChain);
-            tt.timerId = setTimeout(function () { tt.doTrigger() }, delay);
+            var tt = new TriggerInfo(data, this, evChain);
+            tt.timerId = setTimeout(function () { tt.doTrigger(); }, delay);
             
             this.timedTriggers.push(tt);
 
@@ -190,9 +201,9 @@
                 if (this.source.removeEventListener) this.source.removeEventListener(name, this.domCallback);
                 else this.source.detachEvent(name, this.domCallback);
             }
-        }
+        };
 
-    }).call(eventHandler.prototype);
+    }).call(EventHandler.prototype);
 
     var INTERNAL_PREFIX = '__EM__';
     var EVENT_CREATED_EVENT = INTERNAL_PREFIX + 'eventcreated';
@@ -212,7 +223,7 @@
         eventManager.subscribe(source, ANY_EVENT, function (data, evChain) {
             if (!evChain.originalEvent.name.match(dontSubscribeRegex)) {
                 startTimedTrigger(source, eventName, data, params.delay, true, evChain);
-            };
+            }
         });
 
         if (params.autoStart) {
@@ -235,17 +246,17 @@
         var hash;
         var sourceIndex;
  
-        if ((hash = getHash(source)) != null) {
+        if ((hash = getHash(source))) {
             sourceIndex = hashSourceIds[hash];
         } else {
             sourceIndex = source[SOURCE_ID];
         }
         
-        if (sourceIndex == null) {
+        if (!sourceIndex) {
             sources.push(events = {});
             sourceIndex = sources.length - 1;
 
-            if (hash == null) source[SOURCE_ID] = sourceIndex;
+            if (!hash) source[SOURCE_ID] = sourceIndex;
             else hashSourceIds[hash] = sourceIndex;
             
         } else {
@@ -253,58 +264,66 @@
         }
 
         return events;
-    };
+    }
 
     function getHash(obj) {
-
         if (obj.toHash !== undefined) return obj.toHash();
         else if (my.useToStringAsHash && !obj.toString().match(noToStringRe)) return obj.toString();
         return null;
-    };
+    }
 
+    // gets an event on a source with the given name.  If none exists, a new event is created and
+    // returned.
     function getEvent(source, eventName) {
         var events = getSourceEvents(source);
         var event = events[eventName];
-        if (event == null) {
-            events[eventName] = event = new eventHandler(source, eventName);
+        if (!event) {
+            events[eventName] = event = new EventHandler(source, eventName);
         }
         return event;
-    };
+    }
     
+    // subscribes a callback function to a given event name.
     function subscribe(source, eventName, callback) {
         getEvent(source, eventName).subscribe(callback);
-    };
+    }
 
+    // unsubscribes a callback function to a given event.
     function unsubscribe(source, eventName, callback) {
         getEvent(source, eventName).unsubscribe(callback);
-    };
+    }
 
     function registerSequence(source, eventName, sequenceName, params) {
         sequenceRegistrations[sequenceName](source, eventName, params);
-    };
+    }
     
 
     // trigger an event. data, type and source are returned
     function triggerEvent(source, eventName, data, evChain) {
         evChain = getEvent(source, eventName).trigger(data, evChain);
         getEvent(source, ANY_EVENT).trigger(data, evChain);
-    };
+    }
 
-    // 
+    // starts a timer that will execute an event at the end
     // source: source of event.
     // eventName: name of event.
     // data: data to pass.
     // delay: time to wait to execute
     // [restart]: cancels previous events
-    // [evChain]: eventChain up to this point.
+    // [evChain]: EventChain up to this point.
+    // returns the event id
     function startTimedTrigger(source, eventName, data, delay, restart, evChain) {
         return getEvent(source, eventName).startTimedTrigger(data, delay, restart, evChain).timerId;
-    };
+    }
 
+    // cancels a timed trigger for a given source and event name
+    // source: the source of event
+    // eventName: name of event
+    // [id]: if passed, cancels a specific trigger, else all timed triggers are cancelled.
     function cancelTimedTrigger(source, eventName, id) {
-        if (id != null) getEvent(source, eventName).cancelTimedTrigger(id);
+        if (id) getEvent(source, eventName).cancelTimedTrigger(id);
         else getEvent(source, eventName).cancelAllTimedTriggers();
-    };
+    }
 
     // stops all event listening for a source
     function removeSource(source) {
@@ -316,7 +335,7 @@
         sources.splice(sources.indexOf(events), 1, undefined);
         var hash = getHash(source);
         if (hash) delete hashSourceIds[hash];
-    };
+    }
 
     var my = {
         useToStringAsHash: true,

@@ -123,7 +123,7 @@ var rexRegExMap = (function () {
         var matchCounter = 0;
         var captureLabels = [];
 
-        my._rowColFinder = new textRowColFinder(allText);
+        my._rowColFinder = new TextRowColFinder(allText);
 
         // speed things up by putting capture labels into an array
         if (re.xregexp.captureNames != null) {

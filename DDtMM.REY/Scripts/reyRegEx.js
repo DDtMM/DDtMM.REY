@@ -58,7 +58,7 @@ var rexRegEx = (function ($) {
     };
 
 
-    function loadUrl (url) {
+    function loadUrl(url) {
         if (url.length == 0) {
             showMessage('Error', 'Url required for import.');
             return;
@@ -177,6 +177,8 @@ var rexRegEx = (function ($) {
     function reTextChanging() {
         my.tokenizedPattern = regexParser.tokenize(patternEditor.getText(), getOptions());
     };
+
+    // Ace row tokenizer for pattern
     function tokenizePatternRow(row) {
         // type = css, value = text;
         var line = this.doc.getLine(row);
@@ -186,9 +188,11 @@ var rexRegEx = (function ($) {
         var token;
 
         var rowTokens;
-        if (my.tokenizedPattern != null && (rowTokens = my.tokenizedPattern.rows[row]) != null) {
+
+        if (my.tokenizedPattern && (rowTokens = my.tokenizedPattern.rows[row])) {
             for (var i in rowTokens) {
                 token = rowTokens[i];
+                
                 switch (token.rule.namespace) {
                     case 'Ignored':
                         token.text = token.text.replace('\n', '');
@@ -621,10 +625,7 @@ var rexTextEditor = function (replaceDivId, name, tokenHoverCallback, theme) {
         }
     }
 
-
 }).call(rexTextEditor.prototype);
-
-
 
 
 var matchHighligher = function () {

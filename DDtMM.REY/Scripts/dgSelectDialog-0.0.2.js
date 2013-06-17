@@ -1,12 +1,7 @@
 ﻿/*
 options:
-nodes: object with nodes.
-dataTemplate: default dataTemplate.
-node properties:
-dataTemplate (optional): jquery object to clone.  if none is provide, the parents' dataTemplate is used
-children: an array of child nodes (optional)
-id: node id
-value: either a primitave value, or object.
+Displays a select dialog
+IE bugginess with dialog.
 */
 $.widget("dg.selectDialog", {
 
@@ -16,6 +11,7 @@ $.widget("dg.selectDialog", {
         maxValues: 20,
         title: 'Select',
         okText: 'ok',
+        cancelText: 'close',
         description: 'Select one...',
         inputID: ''
     },
@@ -45,21 +41,23 @@ $.widget("dg.selectDialog", {
         this.$dialogElement.dialog({
             width: 'auto',
             modal: true,
-            buttons: [{ text: options.okText, click: function () { self._onSelectConfirmed(arguments); } }],
-            close: function () { self._onDialogClosed(); }
+            buttons: [
+                { text: options.cancelText, click: function () { self._onCancelled(); } },
+                { text: options.okText, click: function () { self._onConfirmed(arguments); } }],
+            close: function (ev) { self._onConfirmed(ev); }
         });
 
         this.$input.autocomplete();
-        this.$input.keyup(function (ev) { if (ev.keyCode == 13) self._onSelectConfirmed(ev); });
+        this.$input.keyup(function (ev) { if (ev.keyCode == 13) self._onConfirmed(ev); });
         this.$itemsList.selectable({
             selected: function (ev, elem) { self.$input.val(elem.selected.innerHTML); }
         });
-        this.$itemsList.on('dblclick', function (ev) { self._onSelectConfirmed(ev); });
+        this.$itemsList.on('dblclick', function (ev) { self._onConfirmed(ev); });
         this.isInitialized = true;
         this._onValuesChanged();
     },
 
-    _onSelectConfirmed: function (ev) {
+    _onConfirmed: function (ev) {
         var options = this.options;
 
         var value = this.$input.val().trim();
@@ -70,7 +68,7 @@ $.widget("dg.selectDialog", {
                 existingIndex = i;
                 break;
             }
-        };
+        }
         
         options.value = value;
         options.values.unshift(value);
@@ -87,7 +85,7 @@ $.widget("dg.selectDialog", {
         
     },
 
-    _onDialogClosed: function (ev) {
+    _onCancelled: function (ev) {
         if (this.isInitialized) {
             this.isInitialized = false;
             this.$dialogElement.remove();
@@ -105,7 +103,7 @@ $.widget("dg.selectDialog", {
             for (var i in values) {
                 this.$itemsList.append($('<li />').text(values[i]));
             }
-        };
+        }
     },
 
     _setOption: function (key, value) {
@@ -115,7 +113,7 @@ $.widget("dg.selectDialog", {
     },
 
     destroy: function () {
-        this._onDialogClosed();
+        this._onCancelled();
 
         // call the base destroy function
         $.Widget.prototype.destroy.call(this);
