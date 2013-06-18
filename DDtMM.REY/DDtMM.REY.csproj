@@ -129,7 +129,7 @@
     <Content Include="Scripts\ace\worker-javascript.js" />
     <Content Include="Scripts\dgBlockUtil-1.0.1.js" />
     <Content Include="Scripts\dgDocs-0.0.2.js" />
-    <Content Include="Scripts\dgEventManager-0.9.1.js" />
+    <Content Include="Scripts\dgEventManager-0.9.2.js" />
     <Content Include="Scripts\dgSelectDialog-0.0.2.js" />
     <Content Include="Scripts\dgSimpleTree-1.0.3.js" />
     <Content Include="Scripts\dgStorage-1.0.1.js" />

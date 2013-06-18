@@ -170,7 +170,7 @@ var rexRegExMap = (function () {
 
             matchMap.push(rootCapture);
         }
- 
+
         if (!equals(matchMap)) {
             my.map = matchMap;
             my.trigger('updated');

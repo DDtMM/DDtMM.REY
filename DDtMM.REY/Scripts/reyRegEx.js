@@ -312,7 +312,7 @@ var rexRegEx = (function ($) {
         onInputsChanged();
     }
 
-    function onInputsChanged () {
+    function onInputsChanged() {
         rexRegExMap.updateMap(targetEditor.getText(), re);
     }
 
@@ -340,7 +340,7 @@ var rexRegEx = (function ($) {
 
             rexModules.init();
             rexRegExMap.on('updated', function () {
-                targetEditor.refreshMarkers();
+                 targetEditor.refreshMarkers();
             });
 
             $('.fillHeight').fillHeight();

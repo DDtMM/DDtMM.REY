@@ -252,10 +252,9 @@ var eventManager = (function () {
             sourceIndex = source[SOURCE_ID];
         }
         
-        if (!sourceIndex) {
+        if (sourceIndex == null) {
             sources.push(events = {});
             sourceIndex = sources.length - 1;
-
             if (!hash) source[SOURCE_ID] = sourceIndex;
             else hashSourceIds[hash] = sourceIndex;
             
