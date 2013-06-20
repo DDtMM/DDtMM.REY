@@ -24,8 +24,8 @@
                 return oldNode.children;
             },
             click: function (ev, data) {
-                rexRegEx.getTargetEditor().gotoLine(data.node.startLine, data.node.startCol);
-                rexRegEx.getTargetEditor().highlightRange(data.node.startLine, data.node.startCol, 
+                reyRegEx.getTargetEditor().gotoLine(data.node.startLine, data.node.startCol);
+                reyRegEx.getTargetEditor().highlightRange(data.node.startLine, data.node.startCol, 
                     data.node.endLine, data.node.endCol, 'selected-capture');
             }
         });
@@ -46,7 +46,7 @@
 
     var my = {
         name: 'Match Visualizer',
-        id: 'rexMatchViz',
+        id: 'reyMatchViz',
         init: init,
         start: start,
         stop: stop

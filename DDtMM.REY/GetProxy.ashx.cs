@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 
-namespace DDtMM.RexRegEx
+namespace DDtMM.reyRegEx
 {
     /// <summary>
     /// Summary description for GetProxy

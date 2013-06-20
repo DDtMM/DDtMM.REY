@@ -1,20 +1,31 @@
-﻿var rexModules = (function () {
-    var modules = [rexCurrentSyntax, findAndReplace, mapVisualizer, rexStringSplit];
+﻿var reyModules = (function () {
+    var modules = [];
     var moduleIDIndex = {};
 
     function init() {
-        for (var i = 0, il = modules.length; i < il; i++) {
-            moduleIDIndex[modules[i].id] = i;
-            initModule(modules[i]);
+        var baseModules = [reyCurrentSyntax, findAndReplace, mapVisualizer, reyStringSplit];
+        for (var i = 0, il = baseModules.length; i < il; i++) {
+            addModule(baseModules[i]);
         }
 
-        var activeModule = getModuleByID(dgStorage.val('rexModules_activeModule'));
+        var activeModule = getModuleByID(dgStorage.val('reyModules_activeModule'));
         if (activeModule != null) showModule(activeModule);
         else showModule(modules[0]);
     };
 
     function addModule(module) {
         var newIndex = modules.push(module) - 1;
+        module._values = {};
+        module.val = function (name, newValue) {
+            if (newValue === undefined) return this._values[name];
+
+            if (newValue != this._values[name]) {
+                this._values[name] = newValue;
+                if (this.onValueChanged != null) {
+                    this.onValueChanged(name, newValue);
+                }
+            }
+        }
         moduleIDIndex[module.id] = newIndex;
         initModule(module);
     };
@@ -35,17 +46,24 @@
         module.init($host);
     };
 
+    // returns a module by its id.
     function getModuleByID(id) {
         for (var i = 0, il = modules.length; i < il; i++) {
             if (modules[i].id == id) return modules[i];
         }
     };
+
+    // shows a Module.
+    // module can be either a module object or its id
     function showModule(module) {
-        if (my.activeModule != null) {
+        if (my.activeModule) {
             my.activeModule.stop();
             $('#' + my.activeModule.id).hide();
         }
 
+        if (typeof module === 'string') {
+            module = getModuleByID(module);
+        }
         my.activeModule = module;
         module.start();
         $('#moduleName').text(module.name);
@@ -53,7 +71,7 @@
     };
 
     function destroy() {
-        dgStorage.val('rexModules_activeModule', my.activeModule.id);
+        dgStorage.val('reyModules_activeModule', my.activeModule.id);
         for (var i = 0, il = modules.length; i < il; i++) {
             if (modules[i].destroy != null) modules[i].destroy();
         }
@@ -69,3 +87,22 @@
 
     return my;
 }());
+
+// a module that all modules must inherit from
+var moduleBase = function () {
+    this.values = {};
+};
+
+(function () {
+    this.val = function (name, newValue) {
+        return (newValue === undefined) ? this.values[name] : this.values[name] = newValue;
+        if (this.onValueChanged != null) {
+            this.onValueChanged(name, newValue);
+        }
+    }
+    //this.update = function () { };
+    //this.init = function () { };
+    //this.start = function () { };
+    //this.stop = function () { };
+    //this.destroy = function () { };
+}).call(moduleBase.prototype);

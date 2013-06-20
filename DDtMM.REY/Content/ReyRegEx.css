@@ -507,7 +507,7 @@ input[disabled] + label
 
 
 
-#rexStringSplit, #rexMatchViz, #rexCurrentSyntax
+#reyStringSplit, #reyMatchViz, #reyCurrentSyntax
 {
     overflow-y:auto;
     overflow-x:auto;
@@ -515,33 +515,33 @@ input[disabled] + label
     color:#fff;
     font-size:12px;
 }
-#rexCurrentSyntax .affedtedByOptions
+#reyCurrentSyntax .affedtedByOptions
 {
     color: #f0f0c0;
 }
-#rexCurrentSyntax .index
+#reyCurrentSyntax .index
 {
     font-family: 'Monaco','Menlo','Ubuntu Mono','Consolas','source-code-pro',monospace;
 }
-#rexMatchViz .captureInfo
+#reyMatchViz .captureInfo
 {
     display: table-cell;
     border: 1px solid #888;
     margin: 0;
     padding: 0px .5em;
 }
-#rexMatchViz .capturedText
+#reyMatchViz .capturedText
 {
     display: table-cell;
     padding-left: .5em;
 }
-#rexMatchViz .dg-tree-handle
+#reyMatchViz .dg-tree-handle
 {
  
     padding: 2px 0px;
 }
 
-#rexMatchViz li
+#reyMatchViz li
 {
     background: #686060;
     border: 0px solid #605858;
@@ -550,21 +550,21 @@ input[disabled] + label
     border-top-width: 1px;*/
 }
 
-#rexMatchViz li  li
+#reyMatchViz li  li
 {
     background: #605860;
 
 }
 
-#rexMatchViz li li li
+#reyMatchViz li li li
 {
     background: #585060;
 }
-#rexMatchViz li li li li
+#reyMatchViz li li li li
 {
     background: #504860;
 }
-#rexMatchViz li li li li li
+#reyMatchViz li li li li li
 {
     background: #484060;
 }
@@ -762,4 +762,24 @@ input[disabled] + label
     display:block;
     padding-top:1em;
     font-weight:bold;
+}
+.dg-docs table td
+{
+    vertical-align:top;
+        padding: .5em 0;
+}
+.dg-docs .definitions
+{
+    background:#ffe;
+    padding:.5em;
+    border:1px solid #ffc;
+}
+.dg-docs .definitions tr:nth-child(2n+1)
+{
+    background:#fffff8;
+}
+.dg-docs .definitions tr > td:first-child
+{
+    font-weight:bold;
+    padding-right:1em;
 }

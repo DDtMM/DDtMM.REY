@@ -1,4 +1,4 @@
-﻿var rexCurrentSyntax = (function () {
+﻿var reyCurrentSyntax = (function () {
     var $rootPanel,
         $normalTable,
         $setTable;
@@ -38,8 +38,8 @@
     }
 
     function update() {
-        appendRules($normalTable, regexSyntax.modes.normal.rules, rexRegEx.reOptions, true);
-        appendRules($setTable, regexSyntax.modes.set.rules, rexRegEx.reOptions, false);
+        appendRules($normalTable, regexSyntax.modes.normal.rules, reyRegEx.reOptions, true);
+        appendRules($setTable, regexSyntax.modes.set.rules, reyRegEx.reOptions, false);
     }
 
     function appendRules($table, rules, options, showQuantifiable) {
@@ -95,17 +95,17 @@
     }
 
     function start() {
-        rexRegEx.on('reUpdated', update);
+        reyRegEx.on('reUpdated', update);
         update();
     }
 
     function stop() {
-        eventManager.unsubscribe(rexRegEx, 'reUpdated', update);
+        eventManager.unsubscribe(reyRegEx, 'reUpdated', update);
     }
 
     var my = {
         name: 'Current Syntax',
-        id: 'rexCurrentSyntax',
+        id: 'reyCurrentSyntax',
         update: update,
         init: init,
         start: start,

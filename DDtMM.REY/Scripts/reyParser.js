@@ -47,7 +47,21 @@
             return new parserNode(rule, this);
         }
 
+        this.findCaptureGroupByID = function(groupID) {
+            var foundGroup;
+            if (this.captureGroup == groupID) return this;
+            for (var i = 0, il = this.children.length; i < il; i++) {
+                if (foundGroup = this.findCaptureGroupByID(groupID)) return foundGroup;
+            }
+        }
 
+        this.findCaptureGroupByName = function (groupName) {
+            var foundGroup;
+            if (this.captureGroupName == groupName) return this;
+            for (var i = 0, il = this.children.length; i < il; i++) {
+                if (foundGroup = this.findCaptureGroupByName(groupName)) return foundGroup;
+            }
+        }
     }).call(parserNode.prototype);
 
 
@@ -230,7 +244,7 @@
 	    for (var i in tokenizeResult.tokens) {
 	
 	        token = tokenizeResult.tokens[i];
-	        
+
 	        switch (token.rule.namespace) {
 	            case 'Quantifiers':
 	                if ((tempNode = parentNode.lastChild()) != null) {
@@ -250,13 +264,20 @@
 	                        break;
 	                    case '\\(':
 	                        parentNode = new parserNode(token.rule, parentNode);
-	                        parentNode.captureGroup = ++captureGroupIndex;
-	                        break;
+	                        if (token.rule.regEx == '\\(') {
+	                            parentNode.captureGroup = ++captureGroupIndex;
+	                        } else if (token.rule.regEx == '\\(\\?<([^>]*)>') {
+	                            parentNode.captureGroup = ++captureGroupIndex;
+	                            parentNode.captureGroupName = token.text.substr(3, token.text.length - 4);
+	                        }
+                        break;
 	                    case '\\]':
 	                        parentNode = parentNode.parent;
 	                    case '\\)':
 	                        // scope up to parent.  If in OR, keep looking for Parenthesis match.
-	                        while (parentNode.rule.regEx != '\\(') { parentNode = parentNode.parent;  }
+	                        while (parentNode.rule.regEx.substr(0, 2) != '\\(') {
+	                            parentNode = parentNode.parent;
+	                        }
 	                        parentNode = parentNode.parent;
 	                        break;
 	                    case '\\|':

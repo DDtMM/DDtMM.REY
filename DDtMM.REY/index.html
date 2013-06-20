@@ -12,7 +12,7 @@
         <span class="subtitle">Regular Expression Editor</span>
     </div>
     <div class="button" id="helpButton" style="vertical-align:top" >Help</div>
-    <span style="font-size:.625em; font-style:italic; float:right">(v0.2.2 2013-06-17)&nbsp;</span>
+    <span style="font-size:.625em; font-style:italic; float:right">(v0.3.1 2013-06-19)&nbsp;</span>
 </header>
 <div id="RegexEditor" class="fillHeight">
 <div id="inputPanel" class="panel">
@@ -154,6 +154,48 @@ function viewCaptures () {
             text matched in a group is included in the array.
         </p>
     </div>
+    <div id="querystring" title="Querystring Parameters">
+        <h1>Querystring Parameters</h1>
+        <p>You can put querystring parameters into the url, so that you can show your work to others.
+            There are some shortcomings due to the length limitation of urls.
+            Eventually there will be a tool to create the parameters, or something like jsfiddle
+            if anyone is interested.
+        </p>
+
+        <table class="definitions">
+            <tr>
+                <td>re</td><td>The Regular Expression to edit.</td>
+            </tr>
+            <tr>
+                <td>txt</td><td>The text to test the expression on.</td>
+            </tr>
+            <tr>
+                <td>url</td><td>A url to load the text to test the expression on.</td>
+            </tr>
+            <tr>
+                <td>tool</td><td>The default tool to load.  The possible values
+                    are currently: <i>reyCurrentSyntax, findAndReplace, mapVisualizer, reyStringSplit</i>.
+                    This will change in the future to something shorter.
+                </td>
+            </tr>
+            <tr>
+                <td>options</td><td>A string with the regular expression modifiers.  For example
+                    gi would result in the options global and case insensitve being used.
+                </td>
+            </tr>
+            <tr>
+                <td>prm.****</td>
+                <td>This is an optional tool parameter.  Only applies to current tool. 
+                    Currently only supported by Find and Replace.  
+                    <ul>
+                        <li>prm.function: replace function</li>
+                        <li>prm.text: replace text</li>
+                        <li>prm.mode: function or text</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
     <div id="roadmap" title="Road Map">
         <h1>REY Road Map</h1>
         <p>
@@ -227,7 +269,7 @@ function viewCaptures () {
         <p>REY is by <a href="http://daniel.gimenez.biz">Daniel Gimenez</a> &copy; 2013.</p>
         <p>
             If you have a question, found a bug, or have a feature request.  Feel free to email 
-            me at <a href="mailto:RexRegEx@gimenez.biz">RexRegEx@gimenez.biz</a>
+            me at <a href="mailto:reyRegEx@gimenez.biz">reyRegEx@gimenez.biz</a>
         </p>
     </div>
 </div>
@@ -251,12 +293,11 @@ function viewCaptures () {
 <script src="Scripts/xregexp.js"></script>
 <script src="Scripts/reyParser.js"></script>
 <script src="Scripts/reyRegExMap.js"></script>
-
+<script src="Scripts/reyModules.js"></script>
 <script src="Scripts/reyMapVisualizer.js"></script>
 <script src="Scripts/reyFindAndReplace.js"></script>
 <script src="Scripts/reyStringSplit.js"></script>
 <script src="Scripts/reyCurrentSyntax.js"></script>
-<script src="Scripts/reyModules.js"></script>
 <script src="Scripts/reyRegEx.js" type="text/javascript" ></script>-->
 
 <script src="scripts/ace-min/ace.js"></script> 

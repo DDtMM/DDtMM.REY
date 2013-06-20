@@ -1,10 +1,7 @@
 ﻿var findAndReplace = (function () {
     var replaceEditor,
         replaceResultsViewer,
-        $replaceWithSelect,
-        functionValue,
-        textValue,
-        currentMode;
+        $replaceWithSelect;
 
     function createReplaceFunction (functionBody) {
         return new function () {
@@ -17,30 +14,7 @@
         }
     }
 
-    function changeMode() {
-
-        currentMode = $replaceWithSelect.val();
-
-        switch (currentMode) {
-            case 'replace-function':
-                replaceEditor.setText(functionValue);
-                replaceEditor.option('mode', 'ace/mode/javascript');
-                replaceEditor.option('theme', 'ace/theme/monokai');
-                break;
-            default:
-                replaceEditor.setText(textValue);
-                replaceEditor.option('mode', 'ace/mode/text');
-                replaceEditor.option('theme', 'ace/theme/dawn');
-                break;
-        }
-    }
-
     function init($elem) {
-        textValue = (dgStorage.val('rexFindAndReplace_textValue') || 'REPLACED');
-        functionValue = (dgStorage.val('rexFindAndReplace_functionValue')
-            || 'function () {\n\treturn arguments[0] + \'!\';\n}');
-        currentMode = (dgStorage.val('rexFindAndReplace_currentMode') || 'replace-text');
-
         $elem.append([
             $('<div id="replaceEditPanel" class="panel">\
                 <div class="moduleMenu">\
@@ -60,7 +34,6 @@
 
         
         $replaceWithSelect = $elem.find('#replaceWithSelect');
-        $replaceWithSelect.val(currentMode);
         $replaceWithSelect.on('change', onReplaceWithSelectChange);
 
         replaceEditor = new rexTextEditor('replaceEditor', 'replaceEditor');
@@ -69,39 +42,95 @@
         replaceResultsViewer = new rexTextEditor('replaceResultsViewer', 'replaceResultsViewer');
         replaceResultsViewer.option('readOnly', true);
 
+        val('text', (dgStorage.val('rexFindAndReplace_textValue') || 'REPLACED'));
+        val('function', (dgStorage.val('rexFindAndReplace_functionValue')
+            || 'function () {\n\treturn arguments[0] + \'!\';\n}'));
+        val('mode', (dgStorage.val('rexFindAndReplace_currentMode') || 'replace-text'));
     }
 
     function onReplaceWithSelectChange() {
-        storeTextValue();
-        changeMode();
+        val('mode', $replaceWithSelect.val());
+    }
+
+    // short hand for my.val;
+    function val(name, value) {
+        return my.val(name, value);
+    }
+
+    function onValueChanged(name, value) {
+        switch (name) {
+            case 'function':
+                if (val('mode') == 'replace-function') {
+                    replaceEditor.setText(value);
+                }
+                update();
+                break;
+            case 'text':
+                if (val('mode') == 'replace-text') {
+                    replaceEditor.setText(value);
+                }
+                update();
+                break;
+            case 'mode':
+                $replaceWithSelect.val(value);
+                onModeChanged();
+                break;
+        }
+    }
+
+    function onModeChanged() {
+        switch (val('mode')) {
+            case 'replace-function':
+                replaceEditor.setText(val('function'));
+                replaceEditor.option('mode', 'ace/mode/javascript');
+                replaceEditor.option('theme', 'ace/theme/monokai');
+                break;
+            default:
+                replaceEditor.setText(val('text'));
+                replaceEditor.option('mode', 'ace/mode/text');
+                replaceEditor.option('theme', 'ace/theme/dawn');
+                break;
+        }
+
         update();
     }
 
+    // called after replace text changed to save the value and update the ui;
+    function replaceTextChanged() {
+        storeTextValue();
+        update();
+    };
+
     // saves the editor text value.
     function storeTextValue() {
-        switch (currentMode) {
+        switch (val('mode')) {
             case 'replace-function':
-                functionValue = replaceEditor.getText();
+                val('function', replaceEditor.getText());
                 break;
             case 'replace-text':
-                textValue = replaceEditor.getText();
+                val('text', replaceEditor.getText());
                 break;
         }
     }
 
     function update() {
-        var replaceWith = replaceEditor.getText();
-        if (currentMode == 'replace-function') replaceWith = createReplaceFunction('(' + replaceWith + ')');
+        var replaceWith;
+
+        if (val('mode') == 'replace-function') {
+            replaceWith = createReplaceFunction('(' + val('function') + ')');
+        } else {
+            replaceWith = val('text');
+        }
+
         replaceResultsViewer.setText(
-            rexRegEx.getTargetEditor().getText().replace(rexRegEx.getRe(), replaceWith)
+            reyRegEx.getTargetEditor().getText().replace(reyRegEx.getRe(), replaceWith)
         );
     }
 
     function start() {
         rexRegExMap.on('updated', update);
-        replaceEditor.on('changecomplete', update);
-        changeMode();
-        update();
+        replaceEditor.on('changecomplete', replaceTextChanged);
+        onModeChanged();
     }
 
     function stop() {
@@ -111,14 +140,15 @@
     }
 
     function destroy() {
-        dgStorage.val('rexFindAndReplace_currentMode', currentMode);
-        dgStorage.val('rexFindAndReplace_functionValue', functionValue);
-        dgStorage.val('rexFindAndReplace_textValue', textValue);
+        dgStorage.val('rexFindAndReplace_currentMode', val('mode'));
+        dgStorage.val('rexFindAndReplace_functionValue', val('function'));
+        dgStorage.val('rexFindAndReplace_textValue', val('text'));
     }
 
     var my = {
         name: 'Find and Replace',
         id: 'rexFindAndReplace',
+        onValueChanged: onValueChanged,
         update: update,
         init: init,
         start: start,

@@ -42,12 +42,11 @@ captureInfo.prototype = {
     },
 
     lastEndIndex: function () {
-        var len = this.children.length;
         return (len > 0) ? this.children[len - 1].endIndex : 0;
     },
 
     unMatchedText: function () {
-        return this.text.substr(this.lastGroupEndIndex());
+         return this.text.substr(this.lastGroupEndIndex());
     },
 
     setLineIndices: function (rowColFinder) {
@@ -137,7 +136,6 @@ var rexRegExMap = (function () {
 
         while ((match = re.exec(allText)) !== null && (my.maxMatches > matchCounter++)) {
             capturesLength = match.length;
- 
             rootCapture = new captureInfo(match[0]);
             rootCapture.startIndex = rootCapture.matchStartIndex = match.index;
             rootCapture.endIndex = rootCapture.matchEndIndex = match.index + match[0].length;
@@ -145,9 +143,12 @@ var rexRegExMap = (function () {
             currentCapture = rootCapture;
 
             for (var i = 1; i < capturesLength; i++) {
+                
                 text = match[i];
+ 
                 if (text !== undefined) {
                     while (currentCapture != null) {
+                        
                         if ((indexOf = currentCapture.unMatchedText().indexOf(text)) >= 0) {
                             currentCapture = new captureInfo(text, i, captureLabels[i - 1], currentCapture, indexOf);
                             break;

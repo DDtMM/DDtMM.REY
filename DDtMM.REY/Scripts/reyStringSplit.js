@@ -1,4 +1,4 @@
-﻿var rexStringSplit = (function () {
+﻿var reyStringSplit = (function () {
     var $table;
 
     function init($elem) {
@@ -6,7 +6,7 @@
     }
 
     function update() {
-        var results = rexRegEx.getTargetEditor().getText().split(rexRegEx.getRe());
+        var results = reyRegEx.getTargetEditor().getText().split(reyRegEx.getRe());
         $table.empty();
         for (var i = 0, il = results.length; i < il; i++) {
             $table.append($('<tr />')
@@ -29,7 +29,7 @@
 
     var my = {
         name: 'String Split',
-        id: 'rexStringSplit',
+        id: 'reyStringSplit',
         update: update,
         init: init,
         start: start,

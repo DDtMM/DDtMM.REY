@@ -1,5 +1,5 @@
 ﻿
-var rexRegEx = (function ($) {
+var reyRegEx = (function ($) {
 
     var re = null;
     var reRegexTextUpdateTimeoutId = -1;
@@ -18,7 +18,7 @@ var rexRegEx = (function ($) {
     var $loader = $('#loader');
 
     function windowUnloaded() {
-        rexModules.destroy();
+        reyModules.destroy();
 
         $allOptions.each(function () { dgStorage.val('RegexEditor_' + this.id, this.checked ); });
         dgStorage.val('patternEditor_INPUTTEXT', patternEditor.getText());
@@ -50,6 +50,42 @@ var rexRegEx = (function ($) {
         }
     };
 
+    // reads the query string to add values
+    function loadFromQuerystring() {
+        var params = {},
+            toolParams = {},
+            queryString = location.search.slice(1),
+            re = /([^&=]+)=([^&]*)/g,
+            name,
+            match, 
+            value;
+
+        while (match = re.exec(queryString)) {
+            name = decodeURIComponent(match[1]);
+            value = decodeURIComponent(match[2]);
+            if (name.substr(0, 4) != 'prm.') params[name] = value;
+            else toolParams[name.substr(4)] = decodeURIComponent(match[2]);
+        }
+
+        if (value = params.re) patternEditor.setText(value);
+        if (value = params.txt) targetEditor.setText(value);
+        if (value = params.url) loadUrl(value);
+        if (value = params.tool) reyModules.showModule(value);
+        if (value = params.options) setOptionFromString(value);
+
+        // add any parameters to tool
+        for (name in toolParams) reyModules.activeModule.val(name, toolParams[name]);
+        
+    }
+
+    // checks and unchecks options based on optionsStr.
+    function setOptionFromString(optionsStr) {
+        if (optionsStr) {
+            $allOptions.each(function () {
+                this.checked = (optionsStr.indexOf(this.value) >= 0);
+            });
+        }
+    }
 
     function updatePatternOptionsUI () {
         var options = getOptions();
@@ -106,6 +142,7 @@ var rexRegEx = (function ($) {
         }
     };
 
+    // shows a modal dialog with the message
     function showMessage (heading, message) {
         $('<div />', {
             html: message.replace('\n', '<br />')
@@ -176,6 +213,7 @@ var rexRegEx = (function ($) {
 
     function reTextChanging() {
         my.tokenizedPattern = regexParser.tokenize(patternEditor.getText(), getOptions());
+        //my.parsedPattern = regexParser.parse(my.tokenizedPattern);
     };
 
     // Ace row tokenizer for pattern
@@ -324,7 +362,7 @@ var rexRegEx = (function ($) {
         reText: '',
         getTargetEditor: function () { return targetEditor; },
         getPatternEditor: function () { return patternEditor; },
-        toString: function() { return 'rexRegEx'; },
+        toString: function() { return 'reyRegEx'; },
         on: function (event, callback) { eventManager.subscribe(my, event, callback); },
         trigger: function (event, data) { eventManager.trigger(my, event, data); },
         init: function () {
@@ -338,7 +376,7 @@ var rexRegEx = (function ($) {
             patternEditor.on('changecomplete', patternEditorTextChanged);
             patternEditor.on('change', reTextChanging);
 
-            rexModules.init();
+            reyModules.init();
             rexRegExMap.on('updated', function () {
                  targetEditor.refreshMarkers();
             });
@@ -473,7 +511,7 @@ var rexRegEx = (function ($) {
             $('#docs').docs();
             $('#helpButton').on('click', function () { $('#docs').docs('show'); });
             loadInputs();
-
+            loadFromQuerystring();
             patternOptionsChanged();
             $(window).trigger('resize');
         }
@@ -641,7 +679,7 @@ var matchHighligher = function () {
         var match;
         var range;
         var className;
-    
+        
         for (var i in matches) {
 
             match = matches[i];
@@ -665,6 +703,6 @@ var matchHighligher = function () {
 
 
 jQuery(document).ready(function ($) {
-    rexRegEx.init();
+    reyRegEx.init();
 });
 

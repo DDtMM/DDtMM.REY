@@ -1,1 +1,1 @@
-﻿<%@ WebHandler Language="C#" CodeBehind="GetProxy.ashx.cs" Class="DDtMM.RexRegEx.GetProxy" %>
+﻿<%@ WebHandler Language="C#" CodeBehind="GetProxy.ashx.cs" Class="DDtMM.reyRegEx.GetProxy" %>
