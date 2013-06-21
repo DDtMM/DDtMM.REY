@@ -9,7 +9,7 @@
         this.captureGroupName = '';
         this.text = '';
 
-        if (parent != null) {
+        if (parent) {
             parent.add(this);
         }
     };
@@ -47,19 +47,21 @@
             return new parserNode(rule, this);
         }
 
-        this.findCaptureGroupByID = function(groupID) {
-            var foundGroup;
+        this.findCaptureGroupByID = function (groupID) {
             if (this.captureGroup == groupID) return this;
+
+            var found;
             for (var i = 0, il = this.children.length; i < il; i++) {
-                if (foundGroup = this.findCaptureGroupByID(groupID)) return foundGroup;
+                if (found = this.children[i].findCaptureGroupByID(groupID)) return found;
             }
         }
 
         this.findCaptureGroupByName = function (groupName) {
-            var foundGroup;
             if (this.captureGroupName == groupName) return this;
+
+            var found;
             for (var i = 0, il = this.children.length; i < il; i++) {
-                if (foundGroup = this.findCaptureGroupByName(groupName)) return foundGroup;
+                if (found = this.children[i].findCaptureGroupByName(groupName)) return found;
             }
         }
     }).call(parserNode.prototype);
@@ -228,6 +230,9 @@
 
     // returns expression tree
 	function parse(tokenizeResult) {
+	    if (!tokenizeResult || tokenizeResult.errors.length) {
+	        return new parserNode();
+	    }
 
 	    var regEx,
 	        text,
@@ -242,7 +247,6 @@
 	    root.errors = [];
 
 	    for (var i in tokenizeResult.tokens) {
-	
 	        token = tokenizeResult.tokens[i];
 
 	        switch (token.rule.namespace) {
@@ -270,9 +274,10 @@
 	                            parentNode.captureGroup = ++captureGroupIndex;
 	                            parentNode.captureGroupName = token.text.substr(3, token.text.length - 4);
 	                        }
-                        break;
+                            break;
 	                    case '\\]':
 	                        parentNode = parentNode.parent;
+	                        break;
 	                    case '\\)':
 	                        // scope up to parent.  If in OR, keep looking for Parenthesis match.
 	                        while (parentNode.rule.regEx.substr(0, 2) != '\\(') {
@@ -536,7 +541,7 @@ var regexSyntax = (function () {
             activeRules: [],
 
             // gets the index of the found capture from the capture array
-            getCaptureIndex: function (captureArray, startIndex) {
+            getgroupIndex: function (captureArray, startIndex) {
                 startIndex = (startIndex || 0);
 
                 for (var i = startIndex, il = captureArray.length; i < il; i++) {
@@ -548,9 +553,9 @@ var regexSyntax = (function () {
             // uses findIndex to find rule based on captures result.
             getRuleFromCaptures: function (captureArray, startIndex, useFindIndex) {
                 if (useFindIndex || useFindIndex == null) {
-                    return this.findIndex[this.getCaptureIndex(captureArray, startIndex)];
+                    return this.findIndex[this.getgroupIndex(captureArray, startIndex)];
                 } else {
-                    return getRuleFromMatch(captureArray[this.getCaptureIndex(captureArray, startIndex)]);
+                    return getRuleFromMatch(captureArray[this.getgroupIndex(captureArray, startIndex)]);
                 }
             },
 
@@ -559,7 +564,7 @@ var regexSyntax = (function () {
                 var match;
 
                 if ((match = new RegExp(this.rulesRe.source, 'gm').exec(text)) != null) {
-                    return this.findIndex[this.getCaptureIndex(match, 1)];
+                    return this.findIndex[this.getgroupIndex(match, 1)];
                 }
 
             },

@@ -12,12 +12,12 @@
                     endLine: oldNode.endLine,
                     endCol: oldNode.endLineCol,
                     value:
-                        '<span class="captureInfo cgroup-' + oldNode.captureIndex + '">' +
-                        ((oldNode.parent == null) ? oldNode.startLine + 1 : '[' + oldNode.captureName + ']') +
+                        '<span class="captureInfo cgroup-' + oldNode.groupIndex + '">' +
+                        ((oldNode.parent == null) ? oldNode.startLine + 1 : '[' + oldNode.groupName + ']') +
                         '</span><span class="capturedText">' +
                         oldNode.text.replace('<', '&lt;').replace('>', '&gt;') +
                         '</span>',
-                    id: oldNode.captureIndex + ':' + oldNode.startIndex + '-' + oldNode.endIndex
+                    id: oldNode.groupIndex + ':' + oldNode.startIndex + '-' + oldNode.endIndex
                 }
             },
             transformGetChildren: function (oldNode) {

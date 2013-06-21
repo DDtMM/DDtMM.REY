@@ -1,7 +1,7 @@
-﻿function captureInfo(text, captureIndex, captureName, parent, distanceFromLastMatch) {
+﻿function captureInfo(text, groupIndex, groupName, parent, distanceFromLastMatch) {
     // capture index
-    this.captureIndex = captureIndex || 0;
-    this.captureName = captureName || this.captureIndex;
+    this.groupIndex = groupIndex || 0;
+    this.groupName = groupName || this.groupIndex;
     this.text = text;
     // parent match
     this.parent;
@@ -121,13 +121,14 @@ var rexRegExMap = (function () {
         var indexOf;
         var matchCounter = 0;
         var captureLabels = [];
+        var parentGroup;
 
         my._rowColFinder = new TextRowColFinder(allText);
 
         // speed things up by putting capture labels into an array
-        if (re.xregexp.captureNames != null) {
-            for (var i = 0, il = re.xregexp.captureNames.length; i < il; i++) {
-                captureLabels.push((re.xregexp.captureNames[i] || i));
+        if (re.xregexp.groupNames != null) {
+            for (var i = 0, il = re.xregexp.groupNames.length; i < il; i++) {
+                captureLabels.push((re.xregexp.groupNames[i] || i));
             }
         }
 
@@ -147,15 +148,28 @@ var rexRegExMap = (function () {
                 text = match[i];
  
                 if (text !== undefined) {
-                    while (currentCapture != null) {
-                        
-                        if ((indexOf = currentCapture.unMatchedText().indexOf(text)) >= 0) {
-                            currentCapture = new captureInfo(text, i, captureLabels[i - 1], currentCapture, indexOf);
-                            break;
-                        } else {
+                    parentGroup = reyRegEx.parsedPattern.findCaptureGroupByID(i).parent.captureGroup;
+
+                    if (parentGroup) {
+                        while (currentCapture != rootCapture && currentCapture.groupIndex != parentGroup) {
                             currentCapture = currentCapture.parent;
                         }
+                    } else {
+                        currentCapture = rootCapture;
                     }
+
+                    indexOf = currentCapture.unMatchedText().indexOf(text);
+                    currentCapture = new captureInfo(text, i, captureLabels[i - 1], currentCapture, indexOf);
+                    //dg oldmethod
+                    //while (currentCapture != null) {
+                        
+                    //    if ((indexOf = currentCapture.unMatchedText().indexOf(text)) >= 0) {
+                    //        currentCapture = new captureInfo(text, i, captureLabels[i - 1], currentCapture, indexOf);
+                    //        break;
+                    //    } else {
+                    //        currentCapture = currentCapture.parent;
+                    //    }
+                    //}
                 }
             }
 

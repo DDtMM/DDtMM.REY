@@ -213,7 +213,7 @@ var reyRegEx = (function ($) {
 
     function reTextChanging() {
         my.tokenizedPattern = regexParser.tokenize(patternEditor.getText(), getOptions());
-        //my.parsedPattern = regexParser.parse(my.tokenizedPattern);
+        my.parsedPattern = regexParser.parse(my.tokenizedPattern);
     };
 
     // Ace row tokenizer for pattern
@@ -276,20 +276,20 @@ var reyRegEx = (function ($) {
         var results = [],
             match = token.text.match(new RegExp(token.rule.regEx)),
             root = match[0],
-            captureIndex,
+            groupIndex,
             lastEndIndex = 0,
             capture;
         
         for (var i = 1, il = match.length; i < il; i++) {
             capture = match[i];
-            captureIndex = root.indexOf(capture, lastEndIndex);
+            groupIndex = root.indexOf(capture, lastEndIndex);
 
             // readd parts of the root
-            if (captureIndex > lastEndIndex) {
-                results.push({ text: root.substr(lastEndIndex, captureIndex - lastEndIndex), index: '' })
+            if (groupIndex > lastEndIndex) {
+                results.push({ text: root.substr(lastEndIndex, groupIndex - lastEndIndex), index: '' })
             }
             results.push({ text: capture, index: '-' + i });
-            lastEndIndex = captureIndex + capture.length;
+            lastEndIndex = groupIndex + capture.length;
         }
 
         if (root.length > lastEndIndex) results.push({ text: root.substr(lastEndIndex), index: '' });
@@ -679,14 +679,15 @@ var matchHighligher = function () {
         var match;
         var range;
         var className;
-        
+
         for (var i in matches) {
 
             match = matches[i];
             range = new Range(match.startLine, match.startLineCol, match.endLine, match.endLineCol).toScreenRange(session);
 
-            className = 'cgroup cgroup-' + (match.captureIndex % 20) +
-                ((Math.floor(match.captureIndex / 20) % 2 == 1) ? ' cgroup-20-40' : '');
+            className = 'cgroup cgroup-' + (match.groupIndex % 20) +
+                ((Math.floor(match.groupIndex / 20) % 2 == 1) ? ' cgroup-20-40' : '');
+            
             if (!range.isMultiLine()) {
                 markerLayer.drawSingleLineMarker(
                     html, range, className, config, null, this.type
