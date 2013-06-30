@@ -358,7 +358,8 @@ var regexSyntax = (function () {
         ['\\\\0(?!\\d)', '\\0', 'NUL character', 0, true],
         //['\\\\(12[0-7]|1[0-1][0-7]|0[0-7]{1,2}|[0-7]{1,2})', '\\[0-127]::\\126', octalText, 1, true],
         ['\\\\x(\[0-9A-Fa-f]{2})', '\\x[00-FF]::\\xFF', hexText, 1, true],
-        ['\\\\u(\[0-9A-Fa-f]{4})', '\\u[0000-FFFF]::\\u0223', unicodeText, 1, true]
+        ['\\\\u(\[0-9A-Fa-f]{4})', '\\u[0000-FFFF]::\\u0223', unicodeText, 1, true],
+        ['\\\\p\\{([^\\}]*)\\}', '\\p{unicode}', 'unicode character $1', 1, true]
     ];
     createNamespace(escSpecialChars, 'Special_Characters');
 

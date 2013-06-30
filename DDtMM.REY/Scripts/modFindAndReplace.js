@@ -1,4 +1,4 @@
-﻿var findAndReplace = (function () {
+﻿var modFindAndReplace = (function () {
     var replaceEditor,
         replaceResultsViewer,
         $replaceWithSelect;
@@ -58,15 +58,17 @@
     }
 
     function onValueChanged(name, value) {
+        // in text or function updates I check to see if the replaceEditor matches the text.
+        // this is riggish.
         switch (name) {
             case 'function':
-                if (val('mode') == 'replace-function') {
+                if (val('mode') == 'replace-function' && value != replaceEditor.getText()) {
                     replaceEditor.setText(value);
                 }
                 update();
                 break;
             case 'text':
-                if (val('mode') == 'replace-text') {
+                if (val('mode') == 'replace-text' && value != replaceEditor.getText()) {
                     replaceEditor.setText(value);
                 }
                 update();
@@ -147,7 +149,7 @@
 
     var my = {
         name: 'Find and Replace',
-        id: 'rexFindAndReplace',
+        id: 'modFindAndReplace',
         onValueChanged: onValueChanged,
         update: update,
         init: init,

@@ -351,7 +351,7 @@ var reyRegEx = (function ($) {
     }
 
     function onInputsChanged() {
-        rexRegExMap.updateMap(targetEditor.getText(), re);
+        rexRegExMap.updateMap(targetEditor.getText(), my.reText, my.reOptions);
     }
 
     var my = {

@@ -1,4 +1,4 @@
-﻿var reyCurrentSyntax = (function () {
+﻿var modCurrentSyntax = (function () {
     var $rootPanel,
         $normalTable,
         $setTable;
@@ -105,7 +105,7 @@
 
     var my = {
         name: 'Current Syntax',
-        id: 'reyCurrentSyntax',
+        id: 'modCurrentSyntax',
         update: update,
         init: init,
         start: start,

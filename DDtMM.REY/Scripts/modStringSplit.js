@@ -1,4 +1,4 @@
-﻿var reyStringSplit = (function () {
+﻿var modStringSplit = (function () {
     var $table;
 
     function init($elem) {
@@ -29,7 +29,7 @@
 
     var my = {
         name: 'String Split',
-        id: 'reyStringSplit',
+        id: 'modStringSplit',
         update: update,
         init: init,
         start: start,

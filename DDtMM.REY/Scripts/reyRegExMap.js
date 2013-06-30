@@ -2,6 +2,7 @@
     // capture index
     this.groupIndex = groupIndex || 0;
     this.groupName = groupName || this.groupIndex;
+    this.internalGroupIndex = -1;
     this.text = text;
     // parent match
     this.parent;
@@ -24,31 +25,34 @@
 };
 
 captureInfo.prototype = {
-    link: function (parent, distanceFromLastMatch) {
+    link: function (parent, startIndex) {
         var textLength = this.text.length;
-        this.captureStartIndex = distanceFromLastMatch + parent.lastGroupEndIndex();
+        this.captureStartIndex = startIndex;
         this.captureEndIndex = this.captureStartIndex + textLength;
         this.startIndex = parent.startIndex + this.captureStartIndex;
         this.endIndex = this.startIndex + textLength;
         this.parent = parent;
-        parent.children.push(this);
+        // since captures are being added in reverse, add to beginning of array.
+        parent.children.splice(0, 0, this);
         this.setLineIndices();
         return this;
     },
 
-    lastGroupEndIndex: function () {
-        var len = this.children.length;
-        return (len > 0) ? this.children[len - 1].captureEndIndex : 0;
+    firstGroupStartIndex: function () {
+        return (this.children.length) ? this.children[0].captureStartIndex : this.text.length;
     },
 
-    lastEndIndex: function () {
-        return (len > 0) ? this.children[len - 1].endIndex : 0;
+    unMatchedTextFromEnd: function () {
+        return this.text.substr(0, this.firstGroupStartIndex());
     },
 
-    unMatchedText: function () {
-         return this.text.substr(this.lastGroupEndIndex());
+    findByInternalGroupId: function (internalId) {
+        var child;
+        for (var i = 0, il = this.children.length; i < il; i++) {
+            if ((child = this.children[i]).internalGroupIndex == internalId) return child;
+            else if (child = child.findByInternalGroupId(internalId)) return child;
+        }
     },
-
     setLineIndices: function (rowColFinder) {
         var parentStartLine, parentEndLine, rowCol;
         if (this.parent != null) {
@@ -99,9 +103,9 @@ var rexRegExMap = (function () {
 
     // sets this.map with a list of all matches broken down into a tree of a captures.
     // returns true if an update occurs.
-    function updateMap(allText, re) {
+    function updateMap(allText, reText, reOptions) {
         my.trigger('beginupdate');
-        if (re == null) {
+        if (!reText) {
             if (!equals([])) {
                 my.map = [];
                 my.trigger('updated');
@@ -116,21 +120,26 @@ var rexRegExMap = (function () {
         var capturesLength;
         var i;
         var rootCapture;
-        var currentCapture;
+        //var currentCapture;
+        var parentGroupInfo;
         var text;
         var indexOf;
         var matchCounter = 0;
-        var captureLabels = [];
+        var groupInfo;
         var parentGroup;
-
+        var re;
         my._rowColFinder = new TextRowColFinder(allText);
 
-        // speed things up by putting capture labels into an array
-        if (re.xregexp.groupNames != null) {
-            for (var i = 0, il = re.xregexp.groupNames.length; i < il; i++) {
-                captureLabels.push((re.xregexp.groupNames[i] || i));
-            }
-        }
+
+
+   
+        //reText = createGroupallRegex(reText, reOptions);
+        var reGroupInfo = reyGroupInfo.groupAllRegex(reText, reOptions);
+        
+        reText = reGroupInfo.createRegEx(reText);
+
+        re = XRegExp(reText, reOptions);
+        
 
         // if not global - only get one match
         if (!re.global) matchCounter = my.maxMatches - 1;
@@ -141,37 +150,8 @@ var rexRegExMap = (function () {
             rootCapture.startIndex = rootCapture.matchStartIndex = match.index;
             rootCapture.endIndex = rootCapture.matchEndIndex = match.index + match[0].length;
             rootCapture.setLineIndices();
-            currentCapture = rootCapture;
 
-            for (var i = 1; i < capturesLength; i++) {
-                
-                text = match[i];
- 
-                if (text !== undefined) {
-                    parentGroup = reyRegEx.parsedPattern.findCaptureGroupByID(i).parent.captureGroup;
-
-                    if (parentGroup) {
-                        while (currentCapture != rootCapture && currentCapture.groupIndex != parentGroup) {
-                            currentCapture = currentCapture.parent;
-                        }
-                    } else {
-                        currentCapture = rootCapture;
-                    }
-
-                    indexOf = currentCapture.unMatchedText().indexOf(text);
-                    currentCapture = new captureInfo(text, i, captureLabels[i - 1], currentCapture, indexOf);
-                    //dg oldmethod
-                    //while (currentCapture != null) {
-                        
-                    //    if ((indexOf = currentCapture.unMatchedText().indexOf(text)) >= 0) {
-                    //        currentCapture = new captureInfo(text, i, captureLabels[i - 1], currentCapture, indexOf);
-                    //        break;
-                    //    } else {
-                    //        currentCapture = currentCapture.parent;
-                    //    }
-                    //}
-                }
-            }
+            addCaptures(match, reGroupInfo, rootCapture);
 
             // increment last index if we matched an empty string (like a word boundary).
             if (rootCapture.text.length == 0) {
@@ -197,6 +177,20 @@ var rexRegExMap = (function () {
 
     };
 
+    // adds captures, going in reverse order for instances like (.)* 
+    function addCaptures(match, parentGroupInfo, parentCapture) {
+        var groupInfo, indexOf, currentCapture;
+        for (var i = parentGroupInfo.children.length - 1; i >= 0; i--) {
+            groupInfo = parentGroupInfo.children[i];
+            text = match[groupInfo.internalGroupId];
+            if (text) {
+                indexOf = parentCapture.unMatchedTextFromEnd().lastIndexOf(text);
+                currentCapture = new captureInfo(text, groupInfo.groupId, groupInfo.label, parentCapture, indexOf);
+                currentCapture.internalGroupIndex = i;
+                addCaptures(match, groupInfo, currentCapture);
+            }
+        }
+    }
 
     // tests if two match map arrays are equal
     function equals(newMap) {

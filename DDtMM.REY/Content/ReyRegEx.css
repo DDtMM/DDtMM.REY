@@ -507,7 +507,7 @@ input[disabled] + label
 
 
 
-#reyStringSplit, #reyMatchViz, #reyCurrentSyntax
+#modStringSplit, #modMatchViz, #modCurrentSyntax
 {
     overflow-y:auto;
     overflow-x:auto;
@@ -515,33 +515,33 @@ input[disabled] + label
     color:#fff;
     font-size:12px;
 }
-#reyCurrentSyntax .affedtedByOptions
+#modCurrentSyntax .affedtedByOptions
 {
     color: #f0f0c0;
 }
-#reyCurrentSyntax .index
+#modCurrentSyntax .index
 {
     font-family: 'Monaco','Menlo','Ubuntu Mono','Consolas','source-code-pro',monospace;
 }
-#reyMatchViz .captureInfo
+#modMatchViz .captureInfo
 {
     display: table-cell;
     border: 1px solid #888;
     margin: 0;
     padding: 0px .5em;
 }
-#reyMatchViz .capturedText
+#modMatchViz .capturedText
 {
     display: table-cell;
     padding-left: .5em;
 }
-#reyMatchViz .dg-tree-handle
+#modMatchViz .dg-tree-handle
 {
  
     padding: 2px 0px;
 }
 
-#reyMatchViz li
+#modMatchViz li
 {
     background: #686060;
     border: 0px solid #605858;
@@ -550,21 +550,21 @@ input[disabled] + label
     border-top-width: 1px;*/
 }
 
-#reyMatchViz li  li
+#modMatchViz li  li
 {
     background: #605860;
 
 }
 
-#reyMatchViz li li li
+#modMatchViz li li li
 {
     background: #585060;
 }
-#reyMatchViz li li li li
+#modMatchViz li li li li
 {
     background: #504860;
 }
-#reyMatchViz li li li li li
+#modMatchViz li li li li li
 {
     background: #484060;
 }

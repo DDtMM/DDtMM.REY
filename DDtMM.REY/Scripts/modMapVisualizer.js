@@ -1,4 +1,4 @@
-﻿var mapVisualizer = (function () {
+﻿var modMapVisualizer = (function () {
     var $elem;
 
     function init($parentElement) {
@@ -21,7 +21,21 @@
                 }
             },
             transformGetChildren: function (oldNode) {
-                return oldNode.children;
+                //return oldNode.children;
+                function findVisibleDescendants(node) {
+                    var child, visibleChildren = [];
+                    for (var i = 0, il = node.children.length; i < il; i++) {
+                        child = node.children[i];
+                        if (child.groupIndex != -1) visibleChildren.push(child);
+                        else {
+                            visibleChildren = visibleChildren.concat(findVisibleDescendants(child));
+                        }
+                    }
+                    return visibleChildren;
+                }
+                return findVisibleDescendants(oldNode);
+
+
             },
             click: function (ev, data) {
                 reyRegEx.getTargetEditor().gotoLine(data.node.startLine, data.node.startCol);
@@ -46,7 +60,7 @@
 
     var my = {
         name: 'Match Visualizer',
-        id: 'reyMatchViz',
+        id: 'modMatchViz',
         init: init,
         start: start,
         stop: stop

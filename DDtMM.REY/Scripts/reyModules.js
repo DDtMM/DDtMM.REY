@@ -3,7 +3,7 @@
     var moduleIDIndex = {};
 
     function init() {
-        var baseModules = [reyCurrentSyntax, findAndReplace, mapVisualizer, reyStringSplit];
+        var baseModules = [modCurrentSyntax, modFindAndReplace, modMapVisualizer, modStringSplit];
         for (var i = 0, il = baseModules.length; i < il; i++) {
             addModule(baseModules[i]);
         }
