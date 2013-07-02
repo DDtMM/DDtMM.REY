@@ -121,7 +121,8 @@
                         continue;
                     }
                     break;
-                case 'Mode':
+                case 'Groups':
+                case 'Sets':
                 case 'BadChars':
                     switch (token.text.substr(0,1)) {
                         case '(':
@@ -174,7 +175,7 @@
         }
 
         if (modeInfo.name.match('set')) {
-            var lastSetIndex = findLastIndexOfRule(tokens, '\\[', 'Mode')
+            var lastSetIndex = findLastIndexOfRule(tokens, '\\[', 'Sets')
             result.errors.push({ token: tokens[lastSetIndex], message: 'unfinishedset' });
         }
 
@@ -261,7 +262,8 @@
 
 	                parentNode.addRule(token.rule);
 	                break;
-	            case 'Mode':
+	            case 'Groups':
+	            case 'Sets':
 	                switch (token.rule.regEx.substr(0, 2)) {
 	                    case '\\[':
 	                        parentNode = new parserNode(token.rule, parentNode);
@@ -468,7 +470,7 @@ var regexSyntax = (function () {
     ];
     createNamespace(escSetSpecialChars, 'Special_Characters');
 
-    var normalMode = [
+    var normalGroups = [
         ['\\(\\?:', '(?:', 'noncapturing group', 0, true],
         ['\\(\\?<([^>]*)>', '(?<n>', 'named capture group "$1"', 1, true],
         ['\\(\\?=', '(?=', 'look ahead', 0, false],
@@ -476,15 +478,19 @@ var regexSyntax = (function () {
         ['\\(', '(', 'group', 0, true],
         ['\\)', ')', 'end group', 0, true],
         ['\\|', '|', 'or', 0, false],
+    ];
+    createNamespace(normalGroups, 'Groups');
+
+    var sets = [
         ['\\[\\^', '[^', 'negated set', 0, true],
         ['\\[', '[', 'set', 0, true]
-    ]
-    createNamespace(normalMode, 'Mode');
+    ];
+    createNamespace(sets, 'Sets');
 
-    var setMode = [
+    var setEnd = [
         ['\\]', ']', 'end set', 0, true]
     ];
-    createNamespace(setMode, 'Mode');
+    createNamespace(setEnd, 'Sets');
 
     var badChars = [
         ['\\\\', '\\', 'unmatched escape', 0, true]
@@ -624,7 +630,7 @@ var regexSyntax = (function () {
         escSpecialChars,
         setReserved,
         setReservedOptional,
-        setMode,
+        setEnd,
         badChars,
         literal));
 
@@ -637,7 +643,8 @@ var regexSyntax = (function () {
         escSpecialChars,
         escReserved,
         escBackReferences,
-        normalMode,
+        normalGroups,
+        sets,
         anchors,
         quantifiers,
         badChars,
@@ -653,8 +660,9 @@ var regexSyntax = (function () {
         setReserved,
         setReservedOptional,
         setClasses,
-        setMode,
-        normalMode,
+        setEnd,
+        sets,
+        normalGroups,
         anchors,
         characterClasses,
         quantifiers,

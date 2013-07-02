@@ -3,7 +3,7 @@
     var moduleIDIndex = {};
 
     function init() {
-        var baseModules = [modCurrentSyntax, modFindAndReplace, modMapVisualizer, modStringSplit];
+        var baseModules = [modCurrentSyntax, modFindAndReplace, modMapVisualizer, modStringSplit, modRegexHistory];
         for (var i = 0, il = baseModules.length; i < il; i++) {
             addModule(baseModules[i]);
         }
@@ -13,9 +13,12 @@
         else showModule(modules[0]);
     };
 
+    // adds module to list of modules, and adds base methods and properties
     function addModule(module) {
         var newIndex = modules.push(module) - 1;
+        // add base functions and properties
         module._values = {};
+        module.isRunning = false;
         module.val = function (name, newValue) {
             if (newValue === undefined) return this._values[name];
 
@@ -57,19 +60,26 @@
     // module can be either a module object or its id
     function showModule(module) {
         if (my.activeModule) {
-            my.activeModule.stop();
+            stopModule(my.activeModule);
             $('#' + my.activeModule.id).hide();
         }
 
         if (typeof module === 'string') {
             module = getModuleByID(module);
         }
-        my.activeModule = module;
-        module.start();
+        startModule(my.activeModule = module);
         $('#moduleName').text(module.name);
         $('#' + module.id).show(0, function () { $('#moduleContainer').trigger('resize') });
     };
 
+    function stopModule(module) {
+        module.stop();
+        module.isRunning = false;
+    }
+    function startModule(module) {
+        module.isRunning = true;
+        module.start();
+    }
     function destroy() {
         dgStorage.val('reyModules_activeModule', my.activeModule.id);
         for (var i = 0, il = modules.length; i < il; i++) {

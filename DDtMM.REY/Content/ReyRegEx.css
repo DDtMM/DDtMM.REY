@@ -266,12 +266,15 @@ button:hover, button:active, .button:hover .button:active
 }
 .moduleContent
 {
+    background: #686060;
     height:100%;
+    color:#fff;
 }
 .moduleMenu
 {
     background:  #f3f3e9;
     padding: 5px;
+    color: #686060;
     border-bottom:1px solid #888;
 }
 
@@ -403,73 +406,85 @@ input[disabled] + label
 {
     background: #402;
 }
-/* For Ace Editors */
-.ace_Mode
+/* For Styling Editors */
+.Literal
+{
+    color:#f8f8f8;
+}
+.Groups, .ace_Groups
 {
     color:#00ff00;
 }
-.ace_Mode-1
+.Groups-1, .ace_Groups-1
 {
-    color:#80ff80;
+    color:#c0ff40;
     font-style:italic;
 }
-.ace_Conditionals
+.Conditionals, .ace_Conditionals
 {
     color:#88f;
 }
-.ace_Quantifiers
+.Quantifiers, .ace_Quantifiers
 {
     color:#ff00ff;
 }
-.ace_Bad_Characters
+.Bad_Characters, .ace_Bad_Characters
 {
     color:red;
 }
-.ace_Escaped_Boundaries,
-.ace_Line_Anchors
+.Escaped_Boundaries, .ace_Escaped_Boundaries,
+.Line_Anchors, .ace_Line_Anchors
 {
     color:#0ff;
 }
-.ace_Escaped_Classes,
-.ace_Set_Classes,
-.ace_Classes
+.Escaped_Classes, .ace_Escaped_Classes,
+.Set_Classes, .ace_Set_Classes,
+.Classes, .ace_Classes
 {
     color:#ff0;
 }
-.ace_Classes-1, .ace_Set_Classes-1, .ace_Set_Classes-2
+.Sets, .ace_Sets
+{
+    color:#ec0;
+}
+.Classes-1, .ace_Classes-1, 
+.Classes-2, .ace_Classes-2,
+.Set_Classes-1, .ace_Set_Classes-1, 
+.Set_Classes-2, .ace_Set_Classes-2
 {
     color:#fc0;
     font-style:italic;
 }
-.ace_Special_Characters,
-.ace_Reserved
+.Special_Characters, .ace_Special_Characters,
+.Reserved, .ace_Reserved
 {
     color:#1ef;
 }
-.ace_Special_Characters-1
+.Special_Characters-1, .ace_Special_Characters-1
 {
     color:#3df;
     font-style:italic;
 }
-.ace_Back_References
+.Back_References, .ace_Back_References
 {
     color:#e0acdc;
 
 }
-.ace_Back_References-1
+.Back_References-1, .ace_Back_References-1
 {
     color:#e4a8d9;
     font-style:italic;
 }
-.ace_Comments
+.Comments, .ace_Comments
 {
     color:#c0c0c0;
 }
-.ace_Comments-1
+.Comments-1, .ace_Comments-1
 {
     color:#d0d0f0;
     font-style:italic;
 }
+
 .dg-selectdialog-width
 {
 
@@ -511,8 +526,7 @@ input[disabled] + label
 {
     overflow-y:auto;
     overflow-x:auto;
-    background: #686060;
-    color:#fff;
+
     font-size:12px;
 }
 #modCurrentSyntax .affedtedByOptions
@@ -523,6 +537,23 @@ input[disabled] + label
 {
     font-family: 'Monaco','Menlo','Ubuntu Mono','Consolas','source-code-pro',monospace;
 }
+#modRegexHistory .dg-tree > li
+{
+    border-bottom: 1px solid #504040;
+}
+#modRegexHistory .dg-tree > li:nth-child(2n+1)
+{
+    background: #706060;
+}
+#modRegexHistory .history-cut
+{
+    opacity: 0.5;
+	-webkit-opacity: 0.5;
+	-moz-opacity: 0.5;
+	filter:alpha(opacity=50);
+}
+
+/* match visualizer */
 #modMatchViz .captureInfo
 {
     display: table-cell;

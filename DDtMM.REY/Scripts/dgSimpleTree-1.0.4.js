@@ -2,10 +2,11 @@
 options:
 nodes: object with nodes.
 dataTemplate: default dataTemplate.
+
 node properties:
 dataTemplate (optional): jquery object to clone.  if none is provide, the parents' dataTemplate is used
 children: an array of child nodes (optional)
-id: node id
+id: node id (optional) - If not given one will be created
 value: either a primitave value, or object.
 */
 $.widget("dg.simpleTree", {
@@ -21,7 +22,7 @@ $.widget("dg.simpleTree", {
         this._$itemTemplate = $('<li />');
         this._$listTemplate = $('<ul />', { 'class': 'dg-tree-list' });
         this._$rootUl = $('<ul />', { 'class': 'dg-tree', 'data-tree-level': 0 });
-        this._root = { children: new Array(), value: null, id: '_root_' };
+        this._root = { children: new Array(), value: null, id: '_0_' };
         this._nodeIndex = {};
         this.element.append(this._$rootUl);
 
@@ -40,7 +41,6 @@ $.widget("dg.simpleTree", {
             node.children = new Array();
             for (var i in oldChildren) {
                 node.children.push(this._executeNodeTransform(oldChildren[i]));
-
             }
         }
         return node;
@@ -60,6 +60,8 @@ $.widget("dg.simpleTree", {
         var node;
         for (var i in nodes) {
             node = this._executeNodeTransform(nodes[i]);
+            // if transform did not include id, create one.
+            if (node.id === undefined) node.id = parentNode.id + '.' + i;
             parentNode.children.push(node);
             node.parent = parentNode;
             this._populateNodeIndex(node);

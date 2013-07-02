@@ -188,6 +188,8 @@ var reyRegEx = (function ($) {
         var options = getOptions();
         var reText = patternEditor.getText();
  
+        
+
         try {
             if (reText === null || reText.length < 1) {
                 throw ('Regular Expression can not be blank.');
@@ -218,47 +220,14 @@ var reyRegEx = (function ($) {
 
     // Ace row tokenizer for pattern
     function tokenizePatternRow(row) {
-        // type = css, value = text;
         var line = this.doc.getLine(row);
         var state = this.states[row - 1];
         var formattedTokens = [];
-        var subTokenizedToken;
-        var token;
-
         var rowTokens;
 
         if (my.tokenizedPattern && (rowTokens = my.tokenizedPattern.rows[row])) {
-            for (var i in rowTokens) {
-                token = rowTokens[i];
-                
-                switch (token.rule.namespace) {
-                    case 'Ignored':
-                        token.text = token.text.replace('\n', '');
-                        break;
-                    case 'Literal':
-                        token.text = token.text.replace('\n', '\u00B6');
-                        break;
-                }
-                if (token.rule.capturedCount == 0) {
-                    formattedTokens.push({
-                        value: token.text,
-                        type: token.rule.namespace.replace('.', '_'),
-                        parserToken: token
-                    });
-                } else {
-                    subTokenizedToken = tokenizeRegexToken(token);
-                    for (var j in subTokenizedToken) {
-                        formattedTokens.push({
-                            value: subTokenizedToken[j].text,
-                            type: token.rule.namespace.replace('.', '_') + subTokenizedToken[j].index,
-                            parserToken: token
-                        });
-                    }
-                    //formattedTokens.push({ value: token.text, type: token.rule.namespace.replace('.', '_') });
-                }
-            }
+            formattedTokens = reyFormatting.formatRegexTokens(rowTokens);
         }
-        //var data = this.tokenizer.getLineTokens(line, state, row);
 
         if (this.currentLine == row) {
             this.currentLine = row + 1;
@@ -272,30 +241,7 @@ var reyRegEx = (function ($) {
  
     }
 
-    function tokenizeRegexToken(token) {
-        var results = [],
-            match = token.text.match(new RegExp(token.rule.regEx)),
-            root = match[0],
-            groupIndex,
-            lastEndIndex = 0,
-            capture;
-        
-        for (var i = 1, il = match.length; i < il; i++) {
-            capture = match[i];
-            groupIndex = root.indexOf(capture, lastEndIndex);
 
-            // readd parts of the root
-            if (groupIndex > lastEndIndex) {
-                results.push({ text: root.substr(lastEndIndex, groupIndex - lastEndIndex), index: '' })
-            }
-            results.push({ text: capture, index: '-' + i });
-            lastEndIndex = groupIndex + capture.length;
-        }
-
-        if (root.length > lastEndIndex) results.push({ text: root.substr(lastEndIndex), index: '' });
-
-        return results;
-    }
 
     function onPatternTokenHover(token) {
         
@@ -342,10 +288,11 @@ var reyRegEx = (function ($) {
     }
 
     function setRe(reText, reOptions) {
+        if (reOptions === undefined) reOptions = my.reOptions;
         re = XRegExp(reText, reOptions);
         my.reOptions = reOptions;
         my.reText = reText;
-        my.trigger('reUpdated');
+        my.trigger('reUpdated', { reText: reText, reOptions: reOptions });
 
         onInputsChanged();
     }
@@ -360,6 +307,7 @@ var reyRegEx = (function ($) {
         setRe: setRe,
         reOptions: '',
         reText: '',
+        tokenizedPattern: null,
         getTargetEditor: function () { return targetEditor; },
         getPatternEditor: function () { return patternEditor; },
         toString: function() { return 'reyRegEx'; },
