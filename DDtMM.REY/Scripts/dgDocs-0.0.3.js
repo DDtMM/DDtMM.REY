@@ -45,8 +45,6 @@ $.widget("dg.docs", {
             title: (this.options.title || this.element.attr('title') || 'Documentation'),
             close: function () {
                 my.isOpen = false;
-                $displayElement.empty();
-                $displayElement.remove();
             },
             autoOpen: false
         });
@@ -60,7 +58,6 @@ $.widget("dg.docs", {
         if (!this.isOpen) {
             this.isOpen = true;
             this._$displayElement.dialog('open');
-            
         }
     },
 
