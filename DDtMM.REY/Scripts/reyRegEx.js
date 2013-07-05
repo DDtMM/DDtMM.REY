@@ -18,12 +18,13 @@ var reyRegEx = (function ($) {
     var $loader = $('#loader');
 
     function windowUnloaded() {
-        reyModules.destroy();
 
         $allOptions.each(function () { dgStorage.val('RegexEditor_' + this.id, this.checked ); });
         dgStorage.val('patternEditor_INPUTTEXT', patternEditor.getText());
         
-        if (dgStorage.localStorageEnabled) {
+        if (dgStorage.defaultProvider.storageSize == "large") {
+            dgStorage.val('activeModuleId', reyModules.activeModule.id);
+            dgStorage.val('moduleValues', reyModules.getModuleValues());
             dgStorage.val('targetEditor_INPUTTEXT', targetEditor.getText());
             dgStorage.val('urlhistory', $('#loadUrlButton').selectDialog('option', 'values'));
         }
@@ -31,14 +32,19 @@ var reyRegEx = (function ($) {
         dgStorage.val('hasData', true);
     };
 
+    function postSession() {
+
+    }
     function loadInputs() {
         if (dgStorage.val('hasData') == true) {
             $allOptions.each(function () { this.checked = dgStorage.val('RegexEditor_' + this.id); });
             patternEditor.setText(dgStorage.val('patternEditor_INPUTTEXT'));
 
-            if (dgStorage.localStorageEnabled) {
+            if (dgStorage.defaultProvider.storageSize == "large") {
                 targetEditor.setText(dgStorage.val('targetEditor_INPUTTEXT'));
                 $('#loadUrlButton').selectDialog('option', 'values', dgStorage.val('urlhistory'));
+                reyModules.startupModuleId = dgStorage.val('activeModuleId');
+                reyModules.startupModuleValues = (dgStorage.val('moduleValues') || { });
             }
         }
         else {
@@ -298,7 +304,7 @@ var reyRegEx = (function ($) {
     }
 
     function onInputsChanged() {
-        rexRegExMap.updateMap(targetEditor.getText(), my.reText, my.reOptions);
+        reyRegExMap.updateMap(targetEditor.getText(), my.reText, my.reOptions);
     }
 
     var my = {
@@ -318,23 +324,37 @@ var reyRegEx = (function ($) {
             targetEditor.addMarker(new matchHighligher(targetEditor), true);
             targetEditor.updateDelay = 1000;
             targetEditor.on('changecomplete', onInputsChanged);
+
             patternEditor = new rexTextEditor('patternEditor', 'patternEditor', onPatternTokenHover);
             patternEditor.updateDelay = 1000;
             patternEditor.option('rowTokenizer', tokenizePatternRow);
             patternEditor.on('changecomplete', patternEditorTextChanged);
             patternEditor.on('change', reTextChanging);
 
-            reyModules.init();
-            rexRegExMap.on('updated', function () {
-                 targetEditor.refreshMarkers();
+            reyRegExMap.on('updated', function () {
+                targetEditor.refreshMarkers();
             });
 
-            $('.fillHeight').fillHeight();
- 
             $(window).unload(windowUnloaded);
             $('#loadUrlButton').selectDialog({
                 dialogOk: function (ev, data) { loadUrl(data.value); }
             });
+
+            EVMGR($('#saveRegexButton')).on('click', postSession);
+
+            $allOptions.click(patternOptionsChanged);
+
+            $('#loadFileButton').click(function () { $('#importFile').trigger('click'); });
+            $('#importFile').on('change', function (ev) { loadFiles(ev.target.files); });
+            $('#docs').docs();
+            $('#helpButton').on('click', function () { $('#docs').docs('show'); });
+            loadInputs();
+            loadFromQuerystring();
+            reyModules.init();
+            patternOptionsChanged();
+
+            // generic ui events
+            $('.fillHeight').fillHeight();
 
             EVMGR($('.menuLabel')).on('click', function () {
                 $(this).parent().find('.menuItemsPanel').toggle(200);
@@ -343,7 +363,7 @@ var reyRegEx = (function ($) {
             EVMGR($('.menu')).on('mousemove click', function () {
                 var id = EVMGR($(this)).delayedTrigger('idle', null, 5000, true);
             });
-            
+
             EVMGR($('.menu')).on('mouseleave', function () {
                 var $menu = $(this);
                 if ($menu.css('display') != 'none') {
@@ -351,7 +371,7 @@ var reyRegEx = (function ($) {
                     $menu.find('.menuItemsPanel').hide(500);
                 }
             });
-            
+
             EVMGR($('.menu')).on('idle', function () {
                 var $itemsPanel = $(this).find('.menuItemsPanel');
                 if ($itemsPanel.css('display') != 'none') $itemsPanel.hide(500);
@@ -360,7 +380,7 @@ var reyRegEx = (function ($) {
             $('.menuItemsPanel').hide();
 
 
-            $('.panelSplitterWidth').each(function() { 
+            $('.panelSplitterWidth').each(function () {
                 var $this = $(this);
                 var $prev = $this.prev();
                 var $next = $this.next();
@@ -391,7 +411,7 @@ var reyRegEx = (function ($) {
                     offset2.left -= (minWidth.indexOf('px') > 0) ? parseFloat(minWidth) : 0.0;
 
                     offsetX = $this.parent().offset().left;
-                    
+
                     $this.draggable('option', 'containment', [offset1.left, offset1.top, offset2.left, offset2.top]);
                 });
                 $this.draggable({
@@ -419,9 +439,9 @@ var reyRegEx = (function ($) {
                     currentHeight = $prev.parent().height() * (parseFloat(currentHeight) / 100);
                 }
                 else if (currentHeight.match(/\D/)) currentHeight = parseFloat(currentHeight);
-  
-                
- 
+
+
+
                 $prev.css('height', currentHeight);
                 $this.css('top', currentHeight);
                 $next.css('top', currentHeight + spliiterHeight);
@@ -452,16 +472,9 @@ var reyRegEx = (function ($) {
                     }
                 });
             });
-            $allOptions.click(patternOptionsChanged);
 
-            $('#loadFileButton').click(function () { $('#importFile').trigger('click'); });
-            $('#importFile').on('change', function (ev) { loadFiles(ev.target.files); });
-            $('#docs').docs();
-            $('#helpButton').on('click', function () { $('#docs').docs('show'); });
-            loadInputs();
-            loadFromQuerystring();
-            patternOptionsChanged();
             $(window).trigger('resize');
+
         }
     };
 
@@ -623,7 +636,7 @@ var matchHighligher = function () {
     this.update = function (html, markerLayer, session, config) {
         var Range = require("ace/range").Range;
 
-        var matches = rexRegExMap.flattenMatches(rexRegExMap.getMatchesInRange(config.firstRow, config.lastRow));
+        var matches = reyRegExMap.flattenMatches(reyRegExMap.getMatchesInRange(config.firstRow, config.lastRow));
         var match;
         var range;
         var className;

@@ -46,16 +46,16 @@
     }
 
     function updateTree() {
-        $elem.simpleTree('swapNodes', rexRegExMap.map);
+        $elem.simpleTree('swapNodes', reyRegExMap.map);
     }
 
     function start() {
-        rexRegExMap.on('updated', updateTree);
+        reyRegExMap.on('updated', updateTree);
         updateTree();
     }
 
     function stop() {
-         eventManager.unsubscribe(rexRegExMap, 'updated', updateTree);
+         eventManager.unsubscribe(reyRegExMap, 'updated', updateTree);
     }
 
     var my = {

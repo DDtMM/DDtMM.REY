@@ -60,12 +60,12 @@ captureInfo.prototype = {
             parentEndLine = this.parent.endLine;
         } else {
             parentStartLine = 0;
-            parentEndLine = rexRegExMap._rowColFinder.maxIndex;
+            parentEndLine = reyRegExMap._rowColFinder.maxIndex;
         }
-        rowCol = rexRegExMap._rowColFinder.findRowCol(this.startIndex, parentStartLine, parentEndLine);
+        rowCol = reyRegExMap._rowColFinder.findRowCol(this.startIndex, parentStartLine, parentEndLine);
         this.startLine = rowCol.row;
         this.startLineCol = rowCol.col;
-        rowCol = rexRegExMap._rowColFinder.findRowCol(this.endIndex, parentStartLine, parentEndLine);
+        rowCol = reyRegExMap._rowColFinder.findRowCol(this.endIndex, parentStartLine, parentEndLine);
         this.endLine = rowCol.row;
         this.endLineCol = rowCol.col;
     },
@@ -99,7 +99,7 @@ captureInfo.prototype = {
 
 
 
-var rexRegExMap = (function () {
+var reyRegExMap = (function () {
 
     // sets this.map with a list of all matches broken down into a tree of a captures.
     // returns true if an update occurs.
@@ -261,7 +261,7 @@ var rexRegExMap = (function () {
         flattenMatches: flattenMatches,
         on: function (event, callback) { eventManager.subscribe(my, event, callback); },
         trigger: function (event) { eventManager.trigger(my, event); },
-        toString: function() { return 'rexRegExMap'; }
+        toString: function() { return 'reyRegExMap'; }
     };
 
     return my;

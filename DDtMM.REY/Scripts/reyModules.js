@@ -1,6 +1,7 @@
-﻿var reyModules = (function () {
+﻿var reyModules = (function ($) {
     var modules = [];
     var moduleIDIndex = {};
+
 
     function init() {
         var baseModules = [modCurrentSyntax, modFindAndReplace, modMapVisualizer, modStringSplit, modRegexHistory];
@@ -8,33 +9,33 @@
             addModule(baseModules[i]);
         }
 
-        var activeModule = getModuleByID(dgStorage.val('reyModules_activeModule'));
-        if (activeModule != null) showModule(activeModule);
+        if (my.startupModuleId) showModule(my.startupModuleId);
         else showModule(modules[0]);
     };
 
     // adds module to list of modules, and adds base methods and properties
     function addModule(module) {
-        var newIndex = modules.push(module) - 1;
+        var newIndex = modules.push(module) - 1,
+            $host;
         // add base functions and properties
         module._values = {};
         module.isRunning = false;
-        module.val = function (name, newValue) {
+        module.val = function (name, newValue, forceUpdace) {
             if (newValue === undefined) return this._values[name];
 
-            if (newValue != this._values[name]) {
+            if (newValue != this._values[name] || forceUpdace) {
                 this._values[name] = newValue;
                 if (this.onValueChanged != null) {
                     this.onValueChanged(name, newValue);
                 }
             }
         }
+        module.getValues = function () {
+            return this._values;
+        }
         moduleIDIndex[module.id] = newIndex;
-        initModule(module);
-    };
 
-    function initModule(module) {
-        var $host;
+        // create ui
         $('#moduleContainer').append(
             $host =
             $('<div />', { id: module.id, 'class': 'moduleContent' })
@@ -46,6 +47,15 @@
                 showModule.call(this, module);
             }));
 
+        // add any saved values
+        if (my.startupModuleValues[module.id]) {
+            var modValues = my.startupModuleValues[module.id];
+            for (var i in modValues) {
+                // we don't want to trigger onValueChanged since the module isn't initialized.
+                module._values[i] = modValues[i];
+            }
+        }
+        
         module.init($host);
     };
 
@@ -80,23 +90,31 @@
         module.isRunning = true;
         module.start();
     }
-    function destroy() {
-        dgStorage.val('reyModules_activeModule', my.activeModule.id);
-        for (var i = 0, il = modules.length; i < il; i++) {
-            if (modules[i].destroy != null) modules[i].destroy();
-        }
-    }
 
+    // get important values for saving
+    function getModuleValues() {
+        var modulesValues = {}, values;
+        for (var i = 0, il = modules.length; i < il; i++) {
+            // save only those that have values;
+            values = modules[i].getValues();
+            if (!$.isEmptyObject(values)) modulesValues[modules[i].id] = values;
+        }
+
+        return modulesValues;
+        
+    }
     var my = {
+        startupModuleValues: {},
+        startupModuleId: '',
         activeModule: null,
         init: init,
         addModule: addModule,
         showModule: showModule,
-        destroy: destroy
+        getModuleValues: getModuleValues
     };
 
     return my;
-}());
+}(jQuery));
 
 // a module that all modules must inherit from
 var moduleBase = function () {

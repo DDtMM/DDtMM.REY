@@ -4,16 +4,18 @@
         $replaceWithSelect;
 
     function createReplaceFunction (functionBody) {
-        return new function () {
-            try {
-                return eval(functionBody);
-            }
-            catch (err) {
-                return 'Error: ' + err;
-            }
+        try {
+            // test it first by creating a new function
+            var f = new Function('return  (' + functionBody + ').apply(modFindAndReplace, arguments);');
+            return f;
+        }
+        catch (err) {
+            console.log('Error: ' + err);
+            return 'Error: ' + err;
         }
     }
 
+ 
     function init($elem) {
         $elem.append([
             $('<div id="replaceEditPanel" class="panel">\
@@ -42,10 +44,10 @@
         replaceResultsViewer = new rexTextEditor('replaceResultsViewer', 'replaceResultsViewer');
         replaceResultsViewer.option('readOnly', true);
 
-        val('text', (dgStorage.val('rexFindAndReplace_textValue') || 'REPLACED'));
-        val('function', (dgStorage.val('rexFindAndReplace_functionValue')
-            || 'function () {\n\treturn arguments[0] + \'!\';\n}'));
-        val('mode', (dgStorage.val('rexFindAndReplace_currentMode') || 'replace-text'));
+        // set initial value
+        val('text', (val('text') || 'REPLACED'), true);
+        val('function', (val('function') || 'function doReplace () {\n\treturn arguments[0] + \'!\';\n}'), true);
+        val('mode', (val('mode') || 'replace-text'), true);
     }
 
     function onReplaceWithSelectChange() {
@@ -53,8 +55,8 @@
     }
 
     // short hand for my.val;
-    function val(name, value) {
-        return my.val(name, value);
+    function val(name, value, forceUpdate) {
+        return my.val(name, value, forceUpdate);
     }
 
     function onValueChanged(name, value) {
@@ -119,7 +121,7 @@
         var replaceWith;
 
         if (val('mode') == 'replace-function') {
-            replaceWith = createReplaceFunction('(' + val('function') + ')');
+            replaceWith = createReplaceFunction(val('function'));
         } else {
             replaceWith = val('text');
         }
@@ -130,21 +132,15 @@
     }
 
     function start() {
-        rexRegExMap.on('updated', update);
+        reyRegExMap.on('updated', update);
         replaceEditor.on('changecomplete', replaceTextChanged);
         onModeChanged();
     }
 
     function stop() {
         storeTextValue();
-        eventManager.unsubscribe(rexRegExMap, 'updated', update);
+        eventManager.unsubscribe(reyRegExMap, 'updated', update);
         eventManager.unsubscribe(replaceEditor, 'changecomplete', update);
-    }
-
-    function destroy() {
-        dgStorage.val('rexFindAndReplace_currentMode', val('mode'));
-        dgStorage.val('rexFindAndReplace_functionValue', val('function'));
-        dgStorage.val('rexFindAndReplace_textValue', val('text'));
     }
 
     var my = {
@@ -155,7 +151,6 @@
         init: init,
         start: start,
         stop: stop,
-        destroy: destroy
     }
 
     return my;

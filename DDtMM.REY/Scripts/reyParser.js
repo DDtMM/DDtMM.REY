@@ -624,13 +624,13 @@ var regexSyntax = (function () {
     my.modes = {};
 
     my.modes.set = createMode([].concat(
-        setClasses,
         escCharacterClasses,
         escSetSpecialChars,
         escSpecialChars,
         setReserved,
         setReservedOptional,
         setEnd,
+        setClasses,
         badChars,
         literal));
 
@@ -659,8 +659,8 @@ var regexSyntax = (function () {
         escReserved,
         setReserved,
         setReservedOptional,
-        setClasses,
         setEnd,
+        setClasses,
         sets,
         normalGroups,
         anchors,

@@ -10,19 +10,33 @@ var dgStorage = (function () {
 
     // stores value for later use
     // returns true if can use local storage
-    function set(key, value) {
-        return storageProivder.set(key, JSON.stringify(value));
+    // if provider is not set, then default provider is used
+    function set(key, value, provider) {
+        return (provider || my.defaultProvider).set(key, JSON.stringify(value));
     }
 
     // stores value for later use
-    function get(key) {
-        return JSON.parse(storageProivder.get(key));
+    // if provider is not set, then default provider is used
+    function get(key, provider) {
+        return JSON.parse((provider || my.defaultProvider).get(key));
     }
 
+    // deletes a value
+    // if provider is not set, then default provider is used
+    function remove(key, provider) {
+        return JSON.parse((provider || my.defaultProvider).remove(key));
+    }
+
+    // gets the value using the default provider if just key provided, otherwise sets it
+    function val(key, value) {
+        if (value === undefined) return get(key);
+        else return set(key, value);
+    }
 
     // empty storage provider
-    var storageProvider = function () {
+    var emptyStorageProvider = function () {
         return {
+            storageSize: "none",
             get: function () { },
             set: function () { return false; },
             remove: function () { }
@@ -32,6 +46,7 @@ var dgStorage = (function () {
     // provides access to local storage 
     var localProvider = (function () {
         return {
+            storageSize: "large",
             get: function (key) {
                 return window.localStorage.getItem(key);
             },
@@ -57,9 +72,9 @@ var dgStorage = (function () {
         function setCookie(key, value, expirationDate) {
             document.cookie = key + "=" + encodeURIComponent(value) + "; expires=" + expirationDate.toUTCString();
         }
-        
+
         var my = {
-            expiration: new Date(),
+            storageSize: "small",
             get: function (key) {
                 re.source = '(?:^|; )' + key + '=([^;]+)';
                 var match = document.cookie.match(re);
@@ -86,24 +101,22 @@ var dgStorage = (function () {
             provider.set(testValue, testValue);
             if (provider.get(testValue) != testValue) throw ('bad result');
             provider.remove(testValue);
+            provider.isFunctional = true;
             return true;
         } catch (ex) {
+            provider.isFunctional = false;
             return false;
         }
     }
 
-    // gets the value if just key provided, otherwise sets it
-    function val (key, value) {
-        if (value === undefined) return get(key);
-        else return set(key, value);
-    }
 
     // saves an element, using the element id as the key.  
     // if key is passed that is used instead
     // if a non input is passed, innerHtml is saved
     // if an input is passed, that appropriate value is saved.
     // for radios and checkboxes, the checkstate and value is saved.
-    function saveElement(elem, key) {
+    // if provider is null then uses default
+    function saveElement(elem, key, provider) {
         if (!key) key = elem.id || elem.name;
 
         switch (elem.nodeName) {
@@ -112,28 +125,32 @@ var dgStorage = (function () {
                 switch (type) {
                     case 'checkbox':
                     case 'radio':
-                        val(key + '.checked', elem.checked || false);
+                        set(key + '.checked', elem.checked || false, provider);
                         break;
                     default:
-                        val(key + '.value', elem.value);
+                        set(key + '.value', elem.value, provider);
                         break;
                 }
+                break;
+            case 'TEXTAREA':
+                set(key + '.value', elem.value, provider);
                 break;
             case 'SELECT':
                 var selectedOptions = [];
                 for (var i = 0, il = elem.options.length; i < il; i++) {
                     if (elem.options[i].selected) selectedOptions.push(elem.options[i].value);
                 }
-                val(key + '.selected', selectedOptions);
+                set(key + '.selected', selectedOptions, provider);
                 break;
             default:
-                val(key + '.innerHTML', elem.innerHTML);
+                set(key + '.innerHTML', elem.innerHTML, provider);
                 break;
         }
     }
 
     // loads an element, using the element id as the key
-    function loadElement(elem, key) {
+    // if provider is null then uses default
+    function loadElement(elem, key, provider) {
         if (!key) key = elem.id || elem.name;
         var value;
 
@@ -143,33 +160,36 @@ var dgStorage = (function () {
                 switch (type) {
                     case 'checkbox':
                     case 'radio':
-                        if ((value = val(key + '.checked'))) elem.checked = value;
+                        if ((value = get(key + '.checked', provider)) !== undefined) elem.checked = value;
                         break;
                     default:
-                        if ((value = val(key + '.value'))) elem.value = value;
+                        if ((value = get(key + '.value', provider)) !== undefined) elem.value = value;
                         break;
                 }
                 break;
+            case 'TEXTAREA':
+                if ((value = get(key + '.value', provider)) !== undefined) elem.value = value;
+                break;
             case 'SELECT':
-                if ((value = val(key + '.selected'))) {
+                if ((value = get(key + '.selected', provider)) !== undefined) {
                     for (var i = 0, il = elem.options.length; i < il; i++) {
                         if (value.indexOf(elem.options[i].value) >= 0) {
                             elem.options[i].selected = true;
                         }
                         else elem.options[i].selected = false;
                     }
-                    
+
                 }
                 break;
             default:
-                if ((value = val(key + '.innerHTML')) !== undefined) elem.innerHTML = value;
+                if ((value = get(key + '.innerHTML', provider)) !== undefined) elem.innerHTML = value;
                 break;
         }
     }
 
     // loads the elements value, and saves it on window unload
-    function trackElement(elem, key) {
-        loadElement(elem, key);
+    function trackElement(elem, key, provider) {
+        loadElement(elem, key, provider);
         trackedElements.push({ elem: elem, key: key });
     }
 
@@ -182,23 +202,18 @@ var dgStorage = (function () {
 
     var my = {
         val: val,
+        get: get,
+        set: set,
+        remove: remove,
+        trackElement: trackElement,
         saveElement: saveElement,
         loadElement: loadElement,
-        noStorage: true,
-        localStorageEnabled: false,
-        cookiesEnabled: false
+        defaultProvider: emptyStorageProvider,
+        providers: [localProvider, cookieProvider],
     };
 
-    if (testProvider(localProvider)) {
-        my.localStorageEnabled = true;
-        my.noStorage = false;
-        storageProivder = localProvider;
-    }
-    else if (testProvider(cookieProvider)) {
-        my.cookiesEnabled = true;
-        my.noStorage = false;
-        storageProvider = cookieProvider;
-    }
+    if (testProvider(localProvider)) my.defaultProvider = localProvider;
+    else if (testProvider(cookieProvider)) my.defaultProvider = cookieProvider;
 
     if (window.addEventListener) window.addEventListener('unload', saveTrackedElements);
     else window.attachEvent('unload', saveTrackedElements);
