@@ -10,6 +10,12 @@ namespace DDtMM.REY.Models
         public string Regex { get; set; }
         public string Modifiers { get; set; }
         public string Target { get; set; }
-        public List<ModuleInfo> Modules { get; set; }
+        public string ActiveModuleID { get; set; }
+        public List<ModuleSetting> ModuleSettings { get; set; }
+
+        public SessionInfo()
+        {
+            ModuleSettings = new List<ModuleSetting>();
+        }
     }
 }

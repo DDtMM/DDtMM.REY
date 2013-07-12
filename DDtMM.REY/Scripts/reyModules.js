@@ -20,16 +20,15 @@
         // add base functions and properties
         module._values = {};
         module.isRunning = false;
-        module.val = function (name, newValue, forceUpdace) {
+        module.val = function (name, newValue, source) {
+            if (!source) source = module;
             if (newValue === undefined) return this._values[name];
 
-            if (newValue != this._values[name] || forceUpdace) {
-                this._values[name] = newValue;
-                if (this.onValueChanged != null) {
-                    this.onValueChanged(name, newValue);
-                }
-            }
+            this._values[name] = newValue;
+            EVMGR(module).trigger("valueChanged", { name: name, value: newValue, source: source });
+            return newValue;
         }
+
         module.getValues = function () {
             return this._values;
         }
@@ -101,8 +100,19 @@
         }
 
         return modulesValues;
-        
     }
+
+    // sets a module value
+    function setModuleValue(id, key, value) {
+        getModuleByID(id).val(key, value);
+    }
+
+    // sets a startup module value
+    function setStartupModuleValue(id, key, value) {
+        if (!my.startupModuleValues[id]) my.startupModuleValues[id] = {};
+        my.startupModuleValues[id][key] = value;
+    }
+
     var my = {
         startupModuleValues: {},
         startupModuleId: '',
@@ -110,7 +120,9 @@
         init: init,
         addModule: addModule,
         showModule: showModule,
-        getModuleValues: getModuleValues
+        getModuleValues: getModuleValues,
+        setModuleValue: setModuleValue,
+        setStartupModuleValue: setStartupModuleValue
     };
 
     return my;

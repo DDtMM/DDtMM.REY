@@ -1,7 +1,6 @@
 ﻿
 var reyRegEx = (function ($) {
 
-    var re = null;
     var reRegexTextUpdateTimeoutId = -1;
     var patternEditor;
     var targetEditor;
@@ -32,39 +31,62 @@ var reyRegEx = (function ($) {
         dgStorage.val('hasData', true);
     };
 
+    // saves a session to file system.
     function postSession() {
+        var session = {
+            Regex: my.reText,
+            Modifiers: my.reOptions,
+            Target: targetEditor.getText().substr(0, 65535),
+            ActiveModuleID: reyModules.activeModule.id,
+            ModuleSettings: []
+        }
 
-    }
-    function loadInputs() {
-        if (dgStorage.val('hasData') == true) {
-            $allOptions.each(function () { this.checked = dgStorage.val('RegexEditor_' + this.id); });
-            patternEditor.setText(dgStorage.val('patternEditor_INPUTTEXT'));
-
-            if (dgStorage.defaultProvider.storageSize == "large") {
-                targetEditor.setText(dgStorage.val('targetEditor_INPUTTEXT'));
-                $('#loadUrlButton').selectDialog('option', 'values', dgStorage.val('urlhistory'));
-                reyModules.startupModuleId = dgStorage.val('activeModuleId');
-                reyModules.startupModuleValues = (dgStorage.val('moduleValues') || { });
+        var moduleValues = reyModules.getModuleValues();
+        for (var i in moduleValues) {
+            for (var j in moduleValues[i]) {
+                session.ModuleSettings.push({
+                    ModuleID: i,
+                    Key: j,
+                    Value: moduleValues[i][j]
+                });
             }
         }
-        else {
-            $('#opt-reg-global').attr('checked', true);
-            $('#opt-reg-insensitive').attr('checked', true);
-            $('#opt-xregex-extended').attr('checked', true);
-            patternEditor.setText('((?<togo>[tg])(o))\t\t\t# find to\'s or go\'s\n| ([wt](here))\t\t\t\t# or find where\'s and there\'s');
-            targetEditor.setText('"If you want to go somewhere, \n\tgoto is the best way to get there."\n\n\t\t- Ken Thompson');
-        }
+
+        $.ajax('/api/Session/', {
+            method: 'post',
+            data: session,
+            success: function (data, status, xhr) {
+                showMessage('Saved', 'Session saved to:\n ' + xhr.getResponseHeader('location'));
+            },
+            error: function (xhr, status, data) {
+                showMessage('Error', 'Unable to save session.');
+                console.log(['error', status, data]);
+            }
+        });
     };
 
-    // reads the query string to add values
-    function loadFromQuerystring() {
+    // begins loading any saved values.
+    function BeginLoadingSavedInputs() {
+        var match;
+
+        if (match = /\/s\/([0-9a-zA-Z]+)(?:$|\?)/.exec(location.pathname)) {
+            loadFromSavedSession(match[1]);
+        } else {
+            loadFromQueryString();
+            loadInputsFromStorage();
+        }
+    }
+    // reads inputs from query string
+    function loadFromQueryString() {
+
         var params = {},
             toolParams = {},
             queryString = location.search.slice(1),
             re = /([^&=]+)=([^&]*)/g,
             name,
-            match, 
+            match,
             value;
+
 
         while (match = re.exec(queryString)) {
             name = decodeURIComponent(match[1]);
@@ -76,15 +98,69 @@ var reyRegEx = (function ($) {
         if (value = params.re) patternEditor.setText(value);
         if (value = params.txt) targetEditor.setText(value);
         if (value = params.url) loadUrl(value);
-        if (value = params.tool) reyModules.showModule(value);
         if (value = params.options) setOptionFromString(value);
-
-        // add any parameters to tool
-        for (name in toolParams) reyModules.activeModule.val(name, toolParams[name]);
-        
+        if (value = params.tool) {
+            reyModules.showModule(value);
+            for (name in toolParams) reyModules.setStartupModuleValue(value, name, toolParams[name]);
+        }
     }
 
-    // checks and unchecks options based on optionsStr.
+    function loadInputsFromStorage() {
+        if (dgStorage.val('hasData') == true) {
+            $allOptions.each(function () { this.checked = dgStorage.val('RegexEditor_' + this.id); });
+            patternEditor.setText(dgStorage.val('patternEditor_INPUTTEXT'));
+
+            if (dgStorage.defaultProvider.storageSize == "large") {
+                targetEditor.setText(dgStorage.val('targetEditor_INPUTTEXT'));
+                $('#loadUrlButton').selectDialog('option', 'values', dgStorage.val('urlhistory'));
+                reyModules.startupModuleId = dgStorage.val('activeModuleId');
+                reyModules.startupModuleValues = (dgStorage.val('moduleValues') || {});
+            }
+        }
+        else {
+            $('#opt-reg-global').attr('checked', true);
+            $('#opt-reg-insensitive').attr('checked', true);
+            $('#opt-xregex-extended').attr('checked', true);
+            patternEditor.setText('((?<togo>[tg])(o))\t\t\t# find to\'s or go\'s\n| ([wt](here))\t\t\t\t# or find where\'s and there\'s');
+            targetEditor.setText('"If you want to go somewhere, \n\tgoto is the best way to get there."\n\n\t\t- Ken Thompson');
+        }
+
+        afterInputsLoaded();
+    };
+
+    // loads from session api, falls back to storage if fails.
+    function loadFromSavedSession(id) {
+        showLoading("Loading session " + id + ".");
+        $.ajax('/api/Session/' + id, {
+            method: 'get',
+            success: function (data, status, xhr) {
+                var settings = data.ModuleSettings,
+                    setting;
+
+                for (var i = 0, il = settings.length; i < il; i++) {
+                    setting = settings[i];
+                    reyModules.setStartupModuleValue(setting.ModuleID, setting.Key, setting.Value);
+                }
+                
+                targetEditor.setText(data.Target);
+                patternEditor.setText(data.Regex);
+                my.reOptions = data.Modifiers;
+                setOptionFromString(my.reOptions);
+                reyModules.startupModuleId = data.ActiveModuleID;
+                afterInputsLoaded();
+            },
+            error: function (xhr, status, data) {
+                showMessage('Error', 'Unable to load ' + id);
+                console.log(['error', status, data]);
+                loadInputsFromStorage();
+            },
+            complete: function () {
+                hideLoading();
+            }
+        });
+    }
+
+    // checks and unchecks modifiers based on optionsStr.
     function setOptionFromString(optionsStr) {
         if (optionsStr) {
             $allOptions.each(function () {
@@ -93,6 +169,7 @@ var reyRegEx = (function ($) {
         }
     }
 
+    // displays what modifiers are active in the modifiers button
     function updatePatternOptionsUI () {
         var options = getOptions();
         if (options.length == 0) options = 'none';
@@ -157,7 +234,6 @@ var reyRegEx = (function ($) {
             modal: true,
             title: heading
         });
-
     };
 
     function showLoading (message)
@@ -168,7 +244,7 @@ var reyRegEx = (function ($) {
 
     function hideLoading (duration) {
         if (duration == null) {
-            $loader.fadeOut(1000);
+            $loader.fadeOut(250);
         } else if (duration == 0) {
             $loader.hide();
         } else {
@@ -193,8 +269,6 @@ var reyRegEx = (function ($) {
     function ReTextInputUpdate() {
         var options = getOptions();
         var reText = patternEditor.getText();
- 
-        
 
         try {
             if (reText === null || reText.length < 1) {
@@ -250,7 +324,6 @@ var reyRegEx = (function ($) {
 
 
     function onPatternTokenHover(token) {
-        
         if (token == null) showPatternEditorMessage('');
         else {
             if (token.parserToken != null) {
@@ -289,379 +362,115 @@ var reyRegEx = (function ($) {
         return options;
     };
 
-    function getRe() {
-        return re;
-    }
-
     function setRe(reText, reOptions) {
-        if (reOptions === undefined) reOptions = my.reOptions;
-        re = XRegExp(reText, reOptions);
+        if (reOptions !== undefined) my.reOptions = reOptions;
         my.reOptions = reOptions;
         my.reText = reText;
-        my.trigger('reUpdated', { reText: reText, reOptions: reOptions });
+        my.trigger('reUpdated', { reText: my.reText, reOptions: my.reOptions });
 
         onInputsChanged();
     }
 
+    // create a new instance of RegExp using currnet options and text.
+    function createRe() {
+        return XRegExp(my.reText, my.reOptions);
+    }
+
     function onInputsChanged() {
-        reyRegExMap.updateMap(targetEditor.getText(), my.reText, my.reOptions);
+        var newMap = reyRegExMap.updateMap(targetEditor.getText(), my.reText, my.reOptions);
+        if (!reyRegExMap.mapsAreEqual(newMap, this.matchMap)) {
+            my.matchMap = newMap;
+            targetEditor.refreshMarkers();
+            my.trigger('mapUpdated', newMap);
+        }
+    }
+
+    // called when jQuery starts.
+    function init() {
+        targetEditor = new reyTextEditor("targetEditor", "targetEditor");
+        targetEditor.addMarker(new matchHighligher(targetEditor), true);
+        targetEditor.updateDelay = 1000;
+        targetEditor.on('changecomplete', onInputsChanged);
+
+        patternEditor = new reyTextEditor('patternEditor', 'patternEditor', onPatternTokenHover);
+        patternEditor.updateDelay = 1000;
+        patternEditor.option('rowTokenizer', tokenizePatternRow);
+        patternEditor.on('changecomplete', patternEditorTextChanged);
+        patternEditor.on('change', reTextChanging);
+
+        $('#loadUrlButton').selectDialog({
+            dialogOk: function (ev, data) { loadUrl(data.value); }
+        });
+
+        $('#loadFileButton').click(function () { $('#importFile').trigger('click'); });
+        $('#importFile').on('change', function (ev) { loadFiles(ev.target.files); });
+        $('#docs').docs();
+        $('#helpButton').on('click', function () { $('#docs').docs('show'); });
+
+        BeginLoadingSavedInputs();
+
+    }
+
+    // creates ui and registers events.
+    function afterInputsLoaded() {
+        reyModules.init();
+        patternOptionsChanged();
+        // generic ui events
+
+        $('.fillHeight').blockUtil('fillHeight');
+        $(window).unload(windowUnloaded);
+
+        EVMGR($('#saveRegexButton')).on('click', postSession);
+
+        $allOptions.click(patternOptionsChanged);
+
+        EVMGR($('.menuLabel')).on('click', function () {
+            $(this).parent().find('.menuItemsPanel').toggle(200);
+        });
+
+        EVMGR($('.menu')).on('mousemove click', function () {
+            var id = EVMGR($(this)).delayedTrigger('idle', null, 5000, true);
+        });
+
+        EVMGR($('.menu')).on('mouseleave', function () {
+            var $menu = $(this);
+            if ($menu.css('display') != 'none') {
+                EVMGR($menu).cancelTrigger('idle');
+                $menu.find('.menuItemsPanel').hide(500);
+            }
+        });
+
+        EVMGR($('.menu')).on('idle', function () {
+            var $itemsPanel = $(this).find('.menuItemsPanel');
+            if ($itemsPanel.css('display') != 'none') $itemsPanel.hide(500);
+        });
+
+        $('.menuItemsPanel').hide();
+        
+        $('.dg-splitter').splitter();
+
+        $(window).trigger('resize');
     }
 
     var my = {
         maxFileSize: 100000,
-        getRe: getRe,
         setRe: setRe,
+        createRe: createRe,
         reOptions: '',
         reText: '',
+        matchMap: [],
         tokenizedPattern: null,
         getTargetEditor: function () { return targetEditor; },
         getPatternEditor: function () { return patternEditor; },
         toString: function() { return 'reyRegEx'; },
         on: function (event, callback) { eventManager.subscribe(my, event, callback); },
         trigger: function (event, data) { eventManager.trigger(my, event, data); },
-        init: function () {
-            targetEditor = new rexTextEditor("targetEditor", "targetEditor");
-            targetEditor.addMarker(new matchHighligher(targetEditor), true);
-            targetEditor.updateDelay = 1000;
-            targetEditor.on('changecomplete', onInputsChanged);
-
-            patternEditor = new rexTextEditor('patternEditor', 'patternEditor', onPatternTokenHover);
-            patternEditor.updateDelay = 1000;
-            patternEditor.option('rowTokenizer', tokenizePatternRow);
-            patternEditor.on('changecomplete', patternEditorTextChanged);
-            patternEditor.on('change', reTextChanging);
-
-            reyRegExMap.on('updated', function () {
-                targetEditor.refreshMarkers();
-            });
-
-            $(window).unload(windowUnloaded);
-            $('#loadUrlButton').selectDialog({
-                dialogOk: function (ev, data) { loadUrl(data.value); }
-            });
-
-            EVMGR($('#saveRegexButton')).on('click', postSession);
-
-            $allOptions.click(patternOptionsChanged);
-
-            $('#loadFileButton').click(function () { $('#importFile').trigger('click'); });
-            $('#importFile').on('change', function (ev) { loadFiles(ev.target.files); });
-            $('#docs').docs();
-            $('#helpButton').on('click', function () { $('#docs').docs('show'); });
-            loadInputs();
-            loadFromQuerystring();
-            reyModules.init();
-            patternOptionsChanged();
-
-            // generic ui events
-            $('.fillHeight').fillHeight();
-
-            EVMGR($('.menuLabel')).on('click', function () {
-                $(this).parent().find('.menuItemsPanel').toggle(200);
-            });
-
-            EVMGR($('.menu')).on('mousemove click', function () {
-                var id = EVMGR($(this)).delayedTrigger('idle', null, 5000, true);
-            });
-
-            EVMGR($('.menu')).on('mouseleave', function () {
-                var $menu = $(this);
-                if ($menu.css('display') != 'none') {
-                    EVMGR($menu).cancelTrigger('idle');
-                    $menu.find('.menuItemsPanel').hide(500);
-                }
-            });
-
-            EVMGR($('.menu')).on('idle', function () {
-                var $itemsPanel = $(this).find('.menuItemsPanel');
-                if ($itemsPanel.css('display') != 'none') $itemsPanel.hide(500);
-            });
-
-            $('.menuItemsPanel').hide();
-
-
-            $('.panelSplitterWidth').each(function () {
-                var $this = $(this);
-                var $prev = $this.prev();
-                var $next = $this.next();
-                var offsetX;
-                var currentWidth;
-                var spliiterWidth = $this.width();
-
-                currentWidth = $prev.css('width');
-                if (currentWidth.indexOf('%') > -1) {
-                    currentWidth = $prev.parent().width() * (parseFloat(currentWidth) / 100);
-                }
-                else if (currentWidth.match(/\D/)) currentWidth = parseFloat(currentWidth);
-
-
-                $prev.css('width', currentWidth);
-                $this.css('left', currentWidth);
-                $next.css('left', currentWidth + spliiterWidth);
-
-                $this.on('mousedown', function () {
-                    var minWidth = $prev.css('min-width');
-                    var offset1 = $prev.offset();
-                    offset1.left += (minWidth.indexOf('px') > 0) ? parseFloat(minWidth) : 0.0;
-
-                    var offset2 = $next.offset();
-                    offset2.top += $next.outerHeight(true);
-                    offset2.left += $next.outerWidth(true);
-                    minWidth = $next.css('min-width');
-                    offset2.left -= (minWidth.indexOf('px') > 0) ? parseFloat(minWidth) : 0.0;
-
-                    offsetX = $this.parent().offset().left;
-
-                    $this.draggable('option', 'containment', [offset1.left, offset1.top, offset2.left, offset2.top]);
-                });
-                $this.draggable({
-                    axis: 'x',
-                    drag: function (ev, ui) {
-                        $next.css('left', ui.offset.left - offsetX + spliiterWidth);
-                        $prev.css('width', ui.offset.left - offsetX);
-                    },
-                    stop: function (ev, ui) {
-                        $(window).trigger('resize');
-                    }
-                });
-            });
-
-            $('.panelSplitterHeight').each(function () {
-                var $this = $(this);
-                var $prev = $this.prev();
-                var $next = $this.next();
-                var offsetY;
-                var currentHeight;
-                var spliiterHeight = $this.height();
-
-                currentHeight = $prev.css('height');
-                if (currentHeight.indexOf('%') > -1) {
-                    currentHeight = $prev.parent().height() * (parseFloat(currentHeight) / 100);
-                }
-                else if (currentHeight.match(/\D/)) currentHeight = parseFloat(currentHeight);
-
-
-
-                $prev.css('height', currentHeight);
-                $this.css('top', currentHeight);
-                $next.css('top', currentHeight + spliiterHeight);
-
-                $this.on('mousedown', function () {
-                    var minHeight = $prev.css('min-height');
-                    var offset1 = $prev.offset();
-                    offset1.top += (minHeight.indexOf('px') > 0) ? parseFloat(minHeight) : 0.0;
-
-                    var offset2 = $next.offset();
-                    offset2.top += $next.outerHeight(true);
-                    offset2.left += $next.outerWidth(true);
-                    minHeight = $next.css('min-height');
-                    offset2.top -= (minHeight.indexOf('px') > 0) ? parseFloat(minHeight) : 0.0;
-
-                    offsetY = $this.parent().offset().top;
-
-                    $this.draggable('option', 'containment', [offset1.left, offset1.top, offset2.left, offset2.top]);
-                });
-                $this.draggable({
-                    axis: 'y',
-                    drag: function (ev, ui) {
-                        $next.css('top', ui.offset.top - offsetY + spliiterHeight);
-                        $prev.css('height', ui.offset.top - offsetY);
-                    },
-                    stop: function (ev, ui) {
-                        $(window).trigger('resize');
-                    }
-                });
-            });
-
-            $(window).trigger('resize');
-
-        }
+        init: init
     };
 
     return my;
 
 }(jQuery));
-
-var rexTextEditor = function (replaceDivId, name, tokenHoverCallback, theme) {
-    this.editor = null;
-    this.updateDelay = 100;
-    this.name = name;
-    this.changing = false;
-
-    // private variables
-    this._timeoutId = -1;
-    this._removableMarkers = [];
-    this.init(replaceDivId, tokenHoverCallback, theme);
-};
-(function () {
-    this.init = function (replaceDivId, tokenHoverCallback, theme) {
-        var my = this;
-
-        this.editor = ace.edit(replaceDivId);
-        this.editor.setTheme((theme || "ace/theme/monokai"));
-        this.editor.setShowPrintMargin(false);
-        this.editor.setHighlightActiveLine(false);
-
-        if (tokenHoverCallback != null) {
-            $('#' + replaceDivId).on('mousemove', function (ev) {
-                var pos = my.editor.renderer.pixelToScreenCoordinates(ev.clientX, ev.clientY);
-                tokenHoverCallback(my.editor.getSession().getTokenAt(pos.row, pos.column));
-            });
-            $('#' + replaceDivId).on('mouseout', function (ev) {
-                tokenHoverCallback(null);
-            });
-        }
-
-        var session = this.editor.getSession();
-        session.setUseWrapMode(true);
-        session.setUseSoftTabs(false);
-
-        this.editor.on('change', function (data) {
-            eventManager.trigger(my, 'change', arguments);
-            if (my.updateDelay > 0) {
-                if (!my.changing) {
-                    my.changing = true;
-                    eventManager.trigger(my, 'changestart', arguments);
-                    for (var i = 0, marker; (marker = my._removableMarkers[i]) !== undefined; i++) {
-                        my.editor.session.removeMarker(marker.id, false);
-                        marker.isAdded = false;
-                    }
-                    my.removeHighlight();
-                    my.editor.updateSelectionMarkers();
-                }
-                clearTimeout(my._timeoutId);
-                my._timeoutId = setTimeout(function () {
-                    my.changing = false;
-                    eventManager.trigger(my, 'changecomplete', arguments);
-                    my.refreshMarkers();
-                }, my.updateDelay);
-            } else {
-                eventManager.trigger(my, 'changecomplete', arguments);
-            }
-        });
-
-        $(window).on('resize', function () {
-            my.editor.resize(true);
-        });
-    };
-
-    this.gotoLine = function (line, col) {
-        this.editor.gotoLine(line + 1, col + 1, false);
-        this.editor.moveCursorTo(line, col)
-        this.editor.centerSelection();
-    };
-
-    // gets text from editor
-    this.getText = function() {
-        return this.editor.getSession().getValue();
-    };
-
-    // sets text on editor
-    this.setText = function (value) {
-        this.editor.getSession().setValue(value);
-    };
-
-    this.on = function (event, callback) {
-        eventManager.subscribe(this, event, callback)
-
-    };
-
-    this.highlightRange = function (startLine, startCol, endLine, endCol, highlightClass) {
-        var Range = require("ace/range").Range;
-        this.removeHighlight();
-        
-        if (highlightClass == null) highlightClass = 'ace_active-line';
-        var range = new Range(startLine, startCol, endLine, endCol);
-        this._lastHighlightID = this.editor.session.addMarker(range, highlightClass, 'text', false);
-        return this._lastHighlightID;
-    };
-
-    this.removeHighlight = function (highlightID) {
-        if (highlightID == null) highlightID = this._lastHighlightID;
-        this.editor.getSession().removeMarker(highlightID);
-    }
-
-
-    // refreshes the editor
-    this.refreshMarkers = function () {
-        var result,
-            session = this.editor.session
-
-        for (var i = 0, marker; (marker = this._removableMarkers[i]) !== undefined; i++) {
-            if (marker.isAdded != true) {
-                session.addDynamicMarker(marker, false);
-                marker.isAdded = true;
-            }
-        }
-
-        this.editor.updateSelectionMarkers();
-    }
-
-    // updates markers;
-    this.addMarker = function (marker, removeDuringChange) {
-        this.editor.session.addDynamicMarker(marker, false);
-        marker.isAdded = true;
-        if (removeDuringChange) this._removableMarkers.push(marker);
-    }
-
-    // gets or sets an option like jQuery
-    this.option = function (name, value) {
-        if (value === undefined) {
-            switch (name) {
-                case 'readOnly': return this.editor.getReadOnly();
-                case 'theme': return this.editor.getTheme();
-                case 'mode': return this.editor.getSession().getMode();
-                case 'rowTokenizer': return this.editor.getSession().bgTokenizer.$tokenizeRow;
-            }
-        }
-        else {
-            switch (name) {
-                case 'readOnly': this.editor.setReadOnly(value); break;
-                case 'theme': this.editor.setTheme(value); break;
-                case 'mode': this.editor.getSession().setMode(value); break;
-                case 'rowTokenizer': this.editor.getSession().bgTokenizer.$tokenizeRow = value; break;
-            }
-        }
-    }
-
-}).call(rexTextEditor.prototype);
-
-
-var matchHighligher = function () {
-    this.type = 'text';
-};
-
-(function () {
-
-    this.update = function (html, markerLayer, session, config) {
-        var Range = require("ace/range").Range;
-
-        var matches = reyRegExMap.flattenMatches(reyRegExMap.getMatchesInRange(config.firstRow, config.lastRow));
-        var match;
-        var range;
-        var className;
-
-        for (var i in matches) {
-
-            match = matches[i];
-            range = new Range(match.startLine, match.startLineCol, match.endLine, match.endLineCol).toScreenRange(session);
-
-            className = 'cgroup cgroup-' + (match.groupIndex % 20) +
-                ((Math.floor(match.groupIndex / 20) % 2 == 1) ? ' cgroup-20-40' : '');
-            
-            if (!range.isMultiLine()) {
-                markerLayer.drawSingleLineMarker(
-                    html, range, className, config, null, this.type
-                );
-            } else {
-                markerLayer.drawMultiLineMarker(
-                    html, range, className, config, null, this.type
-                );
-            }
-        }
-    };
-}).call(matchHighligher.prototype);
-
 
 
 jQuery(document).ready(function ($) {

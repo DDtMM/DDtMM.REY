@@ -4,7 +4,7 @@ License: Freeware
 Description:
 A stack with lmited size.  Loops around the stack
 ***/
-var LimitedStack = function (size) {
+var LimitedStack = function (size, initialValues) {
     this._size = size;
     this._stackArray = new Array(this._size);
 
@@ -12,7 +12,17 @@ var LimitedStack = function (size) {
     this._topIndex = -1; 
     // the index where the stack begins.
     this._bottomIndex = 0;
-    // length of stack
+    
+    if (initialValues && initialValues.length) {
+        if (initialValues.length >= this._size) {
+            initialValues.splice(this._size, initialValues.length - this._size);
+            this._stackArray = initialValues;
+            this._topIndex = this._size - 1;
+        } else {
+            this._stackArray = initialValues.concat(this._stackArray.slice(this._size - initialValues.length));
+            this._topIndex = initialValues.length - 1;
+        }
+    }
 
 };
 
@@ -90,6 +100,7 @@ var LimitedStack = function (size) {
             if (newValue !== undefined) this._stackArray[index] = value = newValue;
             else value = this._stackArray[index];
         }
+        
         return value;
     },
 

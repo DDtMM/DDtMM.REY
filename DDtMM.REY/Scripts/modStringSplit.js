@@ -6,7 +6,7 @@
     }
 
     function update() {
-        var results = reyRegEx.getTargetEditor().getText().split(reyRegEx.getRe());
+        var results = reyRegEx.getTargetEditor().getText().split(reyRegEx.createRe());
         $table.empty();
         for (var i = 0, il = results.length; i < il; i++) {
             $table.append($('<tr />')
@@ -19,12 +19,12 @@
     }
 
     function start() {
-        reyRegExMap.on('updated', update);
+        reyRegEx.on('mapUpdated', update);
         update();
     }
 
     function stop() {
-        eventManager.unsubscribe(reyRegExMap, 'updated', update);
+        eventManager.unsubscribe(reyRegEx, 'mapUpdated', update);
     }
 
     var my = {

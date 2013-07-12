@@ -17,6 +17,8 @@
 
  
     function init($elem) {
+        EVMGR(this).on("valueChanged", onValueChanged);
+
         $elem.append([
             $('<div id="replaceEditPanel" class="panel">\
                 <div class="moduleMenu">\
@@ -28,7 +30,7 @@
                 </div>\
                 <div id="replaceEditor" class="fillHeight"></div>\
             </div>'),
-            '<div class="panelSplitter panelSplitterHeight">&nbsp;</div>',
+            '<div class="dg-splitter dg-splitter-v">&nbsp;</div>',
             $('<div id="replaceResultsPanel" class="panel">\
                  <div id="replaceResultsViewer" style="height:100%" ></div>\
             </div>')
@@ -38,59 +40,56 @@
         $replaceWithSelect = $elem.find('#replaceWithSelect');
         $replaceWithSelect.on('change', onReplaceWithSelectChange);
 
-        replaceEditor = new rexTextEditor('replaceEditor', 'replaceEditor');
+        replaceEditor = new reyTextEditor('replaceEditor', 'replaceEditor');
         replaceEditor.updateDelay = 1000;
 
-        replaceResultsViewer = new rexTextEditor('replaceResultsViewer', 'replaceResultsViewer');
+        replaceResultsViewer = new reyTextEditor('replaceResultsViewer', 'replaceResultsViewer');
         replaceResultsViewer.option('readOnly', true);
 
         // set initial value
-        val('text', (val('text') || 'REPLACED'), true);
-        val('function', (val('function') || 'function doReplace () {\n\treturn arguments[0] + \'!\';\n}'), true);
-        val('mode', (val('mode') || 'replace-text'), true);
+        my.val('text', (my.val('text') || 'REPLACED'));
+        my.val('function', (my.val('function') || 'function doReplace () {\n\treturn arguments[0] + \'!\';\n}'));
+        my.val('mode', (my.val('mode') || 'replace-text'));
     }
 
     function onReplaceWithSelectChange() {
-        val('mode', $replaceWithSelect.val());
+        my.val('mode', $replaceWithSelect.val());
     }
 
-    // short hand for my.val;
-    function val(name, value, forceUpdate) {
-        return my.val(name, value, forceUpdate);
-    }
 
-    function onValueChanged(name, value) {
+    function onValueChanged(data, event) {
         // in text or function updates I check to see if the replaceEditor matches the text.
         // this is riggish.
-        switch (name) {
+
+        switch (data.name) {
             case 'function':
-                if (val('mode') == 'replace-function' && value != replaceEditor.getText()) {
-                    replaceEditor.setText(value);
+                if (data.source != 'replaceEditor') {
+                    replaceEditor.setText(data.value);
                 }
                 update();
                 break;
             case 'text':
-                if (val('mode') == 'replace-text' && value != replaceEditor.getText()) {
-                    replaceEditor.setText(value);
+                if (data.source != 'replaceEditor') {
+                    replaceEditor.setText(data.value);
                 }
                 update();
                 break;
             case 'mode':
-                $replaceWithSelect.val(value);
+                $replaceWithSelect.val(data.value);
                 onModeChanged();
                 break;
         }
     }
 
     function onModeChanged() {
-        switch (val('mode')) {
+        switch (my.val('mode')) {
             case 'replace-function':
-                replaceEditor.setText(val('function'));
+                replaceEditor.setText(my.val('function'));
                 replaceEditor.option('mode', 'ace/mode/javascript');
                 replaceEditor.option('theme', 'ace/theme/monokai');
                 break;
             default:
-                replaceEditor.setText(val('text'));
+                replaceEditor.setText(my.val('text'));
                 replaceEditor.option('mode', 'ace/mode/text');
                 replaceEditor.option('theme', 'ace/theme/dawn');
                 break;
@@ -107,12 +106,12 @@
 
     // saves the editor text value.
     function storeTextValue() {
-        switch (val('mode')) {
+        switch (my.val('mode')) {
             case 'replace-function':
-                val('function', replaceEditor.getText());
+                my.val('function', replaceEditor.getText(), 'replaceEditor');
                 break;
             case 'replace-text':
-                val('text', replaceEditor.getText());
+                my.val('text', replaceEditor.getText(), 'replaceEditor');
                 break;
         }
     }
@@ -120,26 +119,26 @@
     function update() {
         var replaceWith;
 
-        if (val('mode') == 'replace-function') {
-            replaceWith = createReplaceFunction(val('function'));
+        if (my.val('mode') == 'replace-function') {
+            replaceWith = createReplaceFunction(my.val('function'));
         } else {
-            replaceWith = val('text');
+            replaceWith = my.val('text');
         }
 
         replaceResultsViewer.setText(
-            reyRegEx.getTargetEditor().getText().replace(reyRegEx.getRe(), replaceWith)
+            reyRegEx.getTargetEditor().getText().replace(reyRegEx.createRe(), replaceWith)
         );
     }
 
     function start() {
-        reyRegExMap.on('updated', update);
+        reyRegEx.on('mapUpdated', update);
         replaceEditor.on('changecomplete', replaceTextChanged);
         onModeChanged();
     }
 
     function stop() {
         storeTextValue();
-        eventManager.unsubscribe(reyRegExMap, 'updated', update);
+        eventManager.unsubscribe(reyRegEx, 'mapUpdated', update);
         eventManager.unsubscribe(replaceEditor, 'changecomplete', update);
     }
 

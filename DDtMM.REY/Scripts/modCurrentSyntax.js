@@ -12,26 +12,26 @@
         $setTable = $('<table class="moduleTable" />');
 
         $elem.append(
-            $rootPanel = $('<div class="modulePanel" />').append([
-                $('<div class="tabStrip">').append([
-                    $('<div class="tabHeading sel" />').html(normalName).on('click', function() {
+            $rootPanel = $('<div class="panel" />').append([
+                $('<div class="moduleMenu">').append([
+                    $('<div class="tab sel" />').html(normalName).on('click', function() {
                         $normalTable.show();
                         $setTable.hide();
                         $(this).parent().children('[class~="sel"]').removeClass('sel');
                         $(this).addClass('sel');
                     }),
-                    $('<div class="tabHeading" />').html(setName).on('click', function () {
+                    $('<div class="tab" />').html(setName).on('click', function () {
                         $normalTable.hide();
                         $setTable.show();
                         $(this).parent().children('[class~="sel"]').removeClass('sel');
                         $(this).addClass('sel');
                     })
                 ]),
-                $('<div class="modulePanel" />').append([
+                $('<div class="fillHeight window" />').append([
                     $normalTable,
                     $setTable
                 ]),
-                $('<div class="tabStrip">&nbsp</div>')
+
             ])
         );
         $setTable.hide();

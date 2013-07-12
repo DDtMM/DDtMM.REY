@@ -1,4 +1,4 @@
-﻿function captureInfo(text, groupIndex, groupName, parent, distanceFromLastMatch) {
+﻿function CaptureInfo(text, groupIndex, groupName, parent, distanceFromLastMatch) {
     // capture index
     this.groupIndex = groupIndex || 0;
     this.groupName = groupName || this.groupIndex;
@@ -24,7 +24,7 @@
     }
 };
 
-captureInfo.prototype = {
+CaptureInfo.prototype = {
     link: function (parent, startIndex) {
         var textLength = this.text.length;
         this.captureStartIndex = startIndex;
@@ -104,19 +104,11 @@ var reyRegExMap = (function () {
     // sets this.map with a list of all matches broken down into a tree of a captures.
     // returns true if an update occurs.
     function updateMap(allText, reText, reOptions) {
-        my.trigger('beginupdate');
-        if (!reText) {
-            if (!equals([])) {
-                my.map = [];
-                my.trigger('updated');
-            }
-            my.trigger('endupdate');
-            return false;
-        }
-        
-        var match;
         var matchMap = new Array();
 
+        if (!reText) return matchMap;
+        
+        var match;
         var capturesLength;
         var i;
         var rootCapture;
@@ -132,28 +124,24 @@ var reyRegExMap = (function () {
 
 
 
-   
-        //reText = createGroupallRegex(reText, reOptions);
         var reGroupInfo = reyGroupInfo.groupAllRegex(reText, reOptions);
-        
-        reText = reGroupInfo.createRegEx(reText);
-
+        reText = reGroupInfo.createRegEx();
         re = XRegExp(reText, reOptions);
-        
 
         // if not global - only get one match
         if (!re.global) matchCounter = my.maxMatches - 1;
 
         while ((match = re.exec(allText)) !== null && (my.maxMatches > matchCounter++)) {
             capturesLength = match.length;
-            rootCapture = new captureInfo(match[0]);
+            rootCapture = new CaptureInfo(match[0]);
             rootCapture.startIndex = rootCapture.matchStartIndex = match.index;
             rootCapture.endIndex = rootCapture.matchEndIndex = match.index + match[0].length;
             rootCapture.setLineIndices();
-
+            
             addCaptures(match, reGroupInfo, rootCapture);
 
             // increment last index if we matched an empty string (like a word boundary).
+            
             if (rootCapture.text.length == 0) {
                 re.lastIndex = re.lastIndex + 1;
             }
@@ -166,14 +154,8 @@ var reyRegExMap = (function () {
             matchMap.push(rootCapture);
         }
 
-        if (!equals(matchMap)) {
-            my.map = matchMap;
-            my.trigger('updated');
-            return true;
-        }
-        my.trigger('endupdate');
 
-        return false;
+        return matchMap;
 
     };
 
@@ -185,37 +167,32 @@ var reyRegExMap = (function () {
             text = match[groupInfo.internalGroupId];
             if (text) {
                 indexOf = parentCapture.unMatchedTextFromEnd().lastIndexOf(text);
-                currentCapture = new captureInfo(text, groupInfo.groupId, groupInfo.label, parentCapture, indexOf);
+                currentCapture = new CaptureInfo(text, groupInfo.groupId, groupInfo.label, parentCapture, indexOf);
                 currentCapture.internalGroupIndex = i;
                 addCaptures(match, groupInfo, currentCapture);
             }
         }
     }
 
-    // tests if two match map arrays are equal
-    function equals(newMap) {
-        var map = my.map;
+    function mapsAreEqual(mapA, mapB) {
+        if ((!mapA && mapB) || (!mapB && mapA)) return false;
 
-        if (newMap == null || map == null) return false;
+        if (mapA.length != mapB.length) return false;
 
-        var mapLength = map.length;
-        if (newMap.length != mapLength) return false;
-
-        for (var i = 0; i < mapLength; i++) {
-            if (!map[i].equals(newMap[i])) return false;
+        for (var i = 0, il = mapA.length; i < il; i++) {
+            if (!mapA[i].equals(mapB[i])) return false;
         }
 
         return true;
-    };
+    }
+    function getMatchesInRange (map, startLine, endLine) {
 
-    function getMatchesInRange (startLine, endLine) {
-
-        if (my.map == null) return new Array();
+        if (!map) return new Array();
  
-        var startIndex = -1, endIndex = -1, maxIndex = my.map.length - 1, i;
+        var startIndex = -1, endIndex = -1, maxIndex = map.length - 1, i;
 
         for (i = 0; i <= maxIndex; i++) {
-            if (my.map[i].endLine >= startLine) {
+            if (map[i].endLine >= startLine) {
                 startIndex = i;
                 break;
             }
@@ -224,7 +201,7 @@ var reyRegExMap = (function () {
         if (startIndex == -1) return new Array();
 
         for (i = maxIndex; i >= startIndex; i--) {
-            if (my.map[i].startLine <= endLine) {
+            if (map[i].startLine <= endLine) {
                 endIndex = i;
                 break;
             }
@@ -232,7 +209,7 @@ var reyRegExMap = (function () {
 
         if (endIndex == -1) return new Array();
 
-        return my.map.slice(startIndex, endIndex + 1);
+        return map.slice(startIndex, endIndex + 1);
     };
 
     function flattenMatches (mapArray) {
@@ -255,12 +232,10 @@ var reyRegExMap = (function () {
 
     var my = {
         maxMatches: 10000,
-        map: null,
         getMatchesInRange: getMatchesInRange,
         updateMap: updateMap,
         flattenMatches: flattenMatches,
-        on: function (event, callback) { eventManager.subscribe(my, event, callback); },
-        trigger: function (event) { eventManager.trigger(my, event); },
+        mapsAreEqual: mapsAreEqual,
         toString: function() { return 'reyRegExMap'; }
     };
 

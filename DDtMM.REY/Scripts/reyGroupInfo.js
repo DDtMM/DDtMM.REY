@@ -92,6 +92,7 @@
 			}
 			return false;
 		},
+        // removes empty children
 		removeEmpties: function () {
 			var child;
 			for (var i = this.children.length - 1; i >= 0; i--) {
@@ -100,6 +101,13 @@
 		},
 		hasChildren: function () {
 			return (this.children.length > 0);
+		},
+        // do this have a child with this internalGroupId
+		hasChildWithId: function (internalGroupId) {
+		    for (var i = 1, il = this.children.length; i < il; i++) {
+		        if (this.children[i].internalGroupId == internalGroupId) return true;
+		    }
+		    return false;
 		},
         // detects capture group within descendants
 		descendantHasCaptureGroup: function () {
@@ -148,16 +156,17 @@
 			}
 			return null;
 		},
-		createRegEx: function (reText, _shared) {
+		createRegEx: function (_shared) {
 		    if (!this.hasChildren()) {
-				return reText.substring(this.startIndex, this.endIndex);
-			}
+		        return this.getOriginalText();
+		    }
 
-		    var doGrouping = !this.descendantsAllGroupingMatched(),
+            var doGrouping = !this.descendantsAllGroupingMatched(),
+                reText = this.root.reText,
 				child,
 				newReText = this.token,
 				childText;
-
+		    
 			if (!_shared) _shared = { counter: 1 };
 			for (var i = 0, il = this.children.length; i < il; i++) {
 			    child = this.children[i];
@@ -165,24 +174,24 @@
 			    if ((doGrouping && !child.neverGroup) || child.isCaptureGroup)
 			        child.internalGroupId = _shared.counter++;
 
-				childText = child.createRegEx(reText, _shared);
+				childText = child.createRegEx(_shared);
 				if (doGrouping && !child.neverGroup && !child.isCaptureGroup) {
 					if (child.token == '(?:') {
 						// turn non capturing group into capturing
-					    //childText = '(?<__' + child.startIndex + '>' + childText.substring(3);
 					    childText = '(' + childText.substring(3);
 					}
 					else {
-					    // childText = '(?<__' + child.startIndex + '>' + childText + ')';
 					    childText = '(' + childText + ')';
 					}
 				}
 				newReText += childText;
 			}
-
 			if (this.isGroup) newReText += this.endToken;
 
 			return newReText;
+		},
+		getOriginalText: function() {
+		    return this.root.reText.substring(this.startIndex, this.endIndex);
 		},
 		// creates an array corresponding to internal group ids
 		createInternalMap: function (_inside) {
@@ -205,10 +214,12 @@
         this.root = this;
         this._structuredChanged = false;
         this.groupedSections = [];
+        this.reText;
     }
     RootSection.prototype = new GroupSection({});
 
-	// group the entire regular expression, putting ungroupe
+    // group the entire regular expression, putting ungrouped sections into groups if there are any grouped
+    // siblings or decsendants of self or siblings.
 	function groupAllRegex(reText, reOptions) {
 	    // old re: didn't handle | => \\{2}|\\\(|\\\)|\\\[|\\\]|(\((?:\?(?::|<[^>]+>|!|=|\#))?|\)(?:[+*?]\??|\{\d+(?:,\d*)?\}\??)?|\[|\])
 		var match,
@@ -226,6 +237,7 @@
 
 		reText = preGroupallStrip(reText, reOptions);
 		sectionParent = sectionRoot = new RootSection({ start: 0 });
+		sectionRoot.reText = reText;
 		sectionCur = new GroupSection({ start: 0, parent: sectionRoot });
 
 		while (match = re.exec(reText)) {
@@ -299,8 +311,8 @@
 			sectionCur = sectionCur.parent;
 		}
 
-
 		return sectionRoot;
+		
 	}
 
 	
@@ -310,47 +322,5 @@
 	}
 
 	return my;
-	//function createGroupallRegex(reText, reOptions) {
-	//	// I removed comment handling from below
-	//	/*
-	//    (?:\(\?\#[^)]*\)) #inline comment
-	//    |(?:
-	//      (?:\((?:\?(?:(:)|<[^>]+>|!|=|\#))|\()              
-	//      # match group that have no parenthesis within
-	//      (?:
-	//      \\{2}                       # escaped escaped
-	//      |\\\[|\\\]                   # escaped brackets
-	//      |\[(?:\\{2}|\\\]|[^\]])*\]     # sets
-	//      |\\\)|\\\(                   # escaped parens
-	//      |[^()]                       # non parens
-	//      )*
-	//    \))
-	//    |(?:\((?:\?(?:(:)|<[^>]+>|!|=|\#))|\()  # we don't want to group parens
-	//    |(
-	//    \\{2}                       # escaped escaped
-	//      |\\\[|\\\]                   # escaped brackets
-	//      |(?:\[(?:\\{2}|\\\]|[^\]])*\])    # sets
-	//      |\\\)|\\\(
-	//      |\\
-	//      |[^()[\\]+
-	//    )  
-	//    */
 
-	//	var findUngroupedRe = /(?:(?:\((?:\?(?:(:)|<[^>]+>|!|=))|\()(?:\\{2}|\\\[|\\\]|\[(?:\\{2}|\\\]|[^\]])*\]|\\\)|\\\(|[^()])*\))|(?:\((?:\?(?:(:)|<[^>]+>|!|=|\#))|\()|(\\{2}|\\\[|\\\]|(?:\[(?:\\{2}|\\\]|[^\]])*\])|\\\)|\\\(|\\|[^()[\\]+)/g;
-
-	//	var groupsMadeCounter = 0,
-	//        originalGroupCount = 0;
-
-	//	reText = preGroupallStrip(reText, reOptions);
-
-	//	reText = reText.replace(findUngroupedRe, function (match, $1, $2, $3, index) {
-	//		// no capturing groups appear in two places we want them to be captured
-	//		if ($1 || $2) return match.replace(/^\(\?:/, '(?<_$_$' + index + '>');
-	//		if ($3) return '(?<_$_$' + index + '>' + $3 + ')'
-	//		return match;
-	//		groupsMadeCounter++;
-	//	});
-
-	//	return reText;
-	//}
 }());

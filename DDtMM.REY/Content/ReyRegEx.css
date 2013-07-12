@@ -7,15 +7,23 @@
 }
 body
 {
-    background-color: #f3f3e9;
+    background-color: #fff;
     font-family: Verdana,Arial,sans-serif;
     color: #342828;
     font-size:100%;
-    background: #62D2FF url(images/reyback2.png) no-repeat;
+    
         overflow:hidden;
     min-width:50em;
-}
 
+}
+pre {
+     white-space: pre-wrap;       /* css-3 */
+     white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+     white-space: -pre-wrap;      /* Opera 4-6 */
+     white-space: -o-pre-wrap;    /* Opera 7 */
+     word-wrap: break-word;       /* Internet Explorer 5.5+ */
+     margin: 0;
+}
 
 #loader
 {
@@ -51,6 +59,9 @@ body
 }
 #RegexEditor
 {
+    
+    margin-left: .5em;
+    margin-right: .5em;
     overflow:hidden;
     position:relative;
 
@@ -65,8 +76,11 @@ body
     filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);
 }
 
-
-.panel, .panelSplitter
+ #inputPanel  .panel, #rightPanel
+{
+    border:1px solid #ddf;
+}
+.panel, .dg-splitter
 {
     z-index:7;
     position:absolute;
@@ -75,42 +89,65 @@ body
     right:0;
     bottom: 0;
 
-    background: #a09b90;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
- .panelSplitter
+.dg-splitter
 {
+    background:#cdf url(images/greyback.png);
     padding:0;
-    background: #b0aba0;
+
     border: 1px solid #877;
     border-width: 1px 0px;
 }
-.panelSplitter:hover
+.dg-splitter:hover
 {
     background: #d0cba0;
 
 }
-.panelSplitter.ui-draggable-dragging
+.dg-splitter.ui-draggable-dragging
 {
     background: #f0f0a0;
 
 }
- .panelSplitterWidth
+.dg-splitter-h
 {
-    width:.5em;
+    width:.4em;
     min-width:4px;
     cursor:col-resize;
 }
 
-.panelSplitterHeight
+.dg-splitter-v
 {
-    height:.5em;
+    height:.7em;
     min-height:4px;
     cursor:row-resize;
 }
-
+.panelTitle
+{
+    background: #fff;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #484080;
+    margin-bottom: 2px;
+    padding-top: 2px;
+    overflow-x:hidden;
+    display:block;
+}
+.panelTitle .titleText
+{
+    color: #008;
+    padding-left:1em;
+    display: inline-block;
+    line-height:32px;
+    text-transform:uppercase;
+}
+.window
+{
+    padding: 5px;
+    overflow-x: auto;
+    overflow-y: auto;
+}
 #inputPanel
 {
     width:60%;
@@ -152,30 +189,23 @@ body
 }
 header
 {
-    padding-left:4px;
-    margin-top:5px;
+    background: #b5d3eb url(images/logo.png) no-repeat;
+
+    padding-top:5px;
+    height:50px;
     color:#002000;
     border-bottom: 2px solid #888;
    
 }
-header .logo
+header .logoMenu
 {
+    padding-top:16px;
+    padding-left:200px;
     text-align:center;
     display:inline-block;
 }
-header .title
-{
-    font-size: 32px;
-    line-height:32px;
-    display:block;
-}
-header .subtitle
-{
-    font-size:10px;
-    display:block;
-    color:#602020;
-}
-button, .button
+
+button, .button, .iconButton
 {
     color: #484080;
     background-color:  #f3f3e9;
@@ -185,15 +215,19 @@ button, .button
     display: inline-block;
     cursor:pointer;
     margin: 0;
-    padding: 0 6px 0 32px;
+    padding: 0 6px 0 6px;
     line-height:28px;
     height: 28px;
     border-radius: 5px;
     margin-bottom:1px;
 }
-button:hover, button:active, .button:hover .button:active
+.iconButton
 {
-    background-color:  #d8d8c9;
+    padding: 0 6px 0 32px;
+}
+button:hover, button:active, .button:hover, .button:active, .iconButton:hover, .iconButton:active
+{
+    background-color:  #f6ee9a;
     color: #202040;
 }
 #helpButton
@@ -214,25 +248,13 @@ button:hover, button:active, .button:hover .button:active
 }
 #loadFileButton
 {
-    background-image:url(images/icons/icon-upload-24.png);
+    background-image:url(images/icons/icon-fileimport-24.png);
 }
-.panelTitle
+#saveRegexButton
 {
-    background: #d3d3c9;
-    padding-bottom: 2px;
-    border-bottom: 1px solid #484080;
-    margin-bottom: 2px;
-    padding-top: 2px;
-    overflow-x:hidden;
-    display:block;
+    background-image:url(images/icons/icon-save-24.png);
 }
-.panelTitle .titleText
-{
-    color: black;
-    padding-left:1em;
-    display: inline-block;
-    line-height:32px;
-}
+
 .menu
 {
     display:inline-block;
@@ -263,6 +285,7 @@ button:hover, button:active, .button:hover .button:active
 #moduleContainer
 {
     position:relative;
+    font-size:12px;
 }
 .moduleContent
 {
@@ -277,7 +300,27 @@ button:hover, button:active, .button:hover .button:active
     color: #686060;
     border-bottom:1px solid #888;
 }
-
+.moduleMenu .tab
+{
+    background: #c0d0f0;
+    border: 1px solid #888;
+    border-top-left-radius: 2px 5px;
+    border-top-right-radius: 2px 5px; 
+    cursor: pointer;
+    display: inline-block;
+    padding: .1em 1em .1em 1em;
+    margin-right: 2px;
+}
+.moduleMenu .tab:hover
+{
+    background: #f6ee9a;
+}
+.moduleMenu .tab.sel
+{
+    background: #fff;
+    color: #484080;
+ 
+}
 #patternEditorMessage
 {
     color:#fff8d0;
@@ -522,7 +565,7 @@ input[disabled] + label
 
 
 
-#modStringSplit, #modMatchViz, #modCurrentSyntax
+#modStringSplit, #modCurrentSyntax
 {
     overflow-y:auto;
     overflow-x:auto;
@@ -599,7 +642,7 @@ input[disabled] + label
 {
     background: #484060;
 }
-.modulePanel, .moduleTable
+.moduleTable
 {
     width:100%;
     border:0;
@@ -634,33 +677,12 @@ input[disabled] + label
         white-space: nowrap;
     }
 
-    .modulePanel .tabStrip
-    {
-        font-size:1.4em;
-        background: #888;
-        color: #d9d4a2;
-        padding: 0 .5em;
-    }
 
-        .modulePanel .tabStrip .tabHeading
-        {
-            cursor: pointer;
-            display: inline-block;
-            padding: .1em 1em .1em 0em;
-        }
-        .modulePanel .tabStrip .tabHeading:hover
-        {
-            color: #f6ee9a;
-        }
-        .modulePanel .tabStrip .tabHeading.sel
-        {
-            color: #fff;
- 
-        }
+
 .dg-tree
 {
-    margin:0px;
-    padding:5px;
+    margin:0;
+    padding:0;
     font-family: 'Monaco','Menlo','Ubuntu Mono','Consolas','source-code-pro',monospace;
 }
 .dg-tree ul
@@ -734,6 +756,7 @@ input[disabled] + label
     width: 70%;
     padding: 1em;
     height:100%;
+    position:relative;
     overflow-y:auto;
 }
 .dg-docs-content a

@@ -5,9 +5,10 @@ using System.Web;
 
 namespace DDtMM.REY.Models
 {
-    public class ModuleInfo
+    public class ModuleSetting
     {
         public string ModuleID { get; set; }
-        public Dictionary<string, string> Values { get; set; }
+        public string Key { get; set; }
+        public string Value { get; set; }
     }
 }

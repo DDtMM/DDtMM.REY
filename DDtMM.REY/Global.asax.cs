@@ -19,6 +19,12 @@ namespace DDtMM.REY
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = System.Web.Http.RouteParameter.Optional }
                 );
+
+            RouteTable.Routes.MapHttpRoute(
+                name: "SavedSession",
+                routeTemplate: "s/{id}",
+                defaults: new { id = System.Web.Http.RouteParameter.Optional }
+                );
         }
 
         protected void Session_Start(object sender, EventArgs e)

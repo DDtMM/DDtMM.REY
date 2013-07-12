@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<SessionInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Regex>([^=]+)(?==)</Regex>
+  <Modifiers>gix</Modifiers>
+  <Target>([^=]+)(?==)</Target>
+  <ActiveModuleID>modRegexHistory</ActiveModuleID>
+  <ModuleSettings>
+    <ModuleSetting>
+      <ModuleID>modFindAndReplace</ModuleID>
+      <Key>text</Key>
+      <Value>REPLACED</Value>
+    </ModuleSetting>
+    <ModuleSetting>
+      <ModuleID>modFindAndReplace</ModuleID>
+      <Key>function</Key>
+      <Value>function doReplace () {
+	return arguments[0] + '!';
+}</Value>
+    </ModuleSetting>
+    <ModuleSetting>
+      <ModuleID>modFindAndReplace</ModuleID>
+      <Key>mode</Key>
+      <Value>replace-text</Value>
+    </ModuleSetting>
+  </ModuleSettings>
+</SessionInfo>

@@ -1,6 +1,6 @@
 ﻿var modRegexHistory = (function () {
     var $elem;
-    var history = new LimitedStack(100);
+    var history = new LimitedStack(50);
     var maxReLength = 60;
     var selectedIndex = -1;
 
@@ -71,8 +71,29 @@
                 reyRegEx.getPatternEditor().setText(data.node.reText);
             }
         });
-        
+    }
 
+    function onValueChanged(name, value) {
+        // in text or function updates I check to see if the replaceEditor matches the text.
+        // this is riggish.
+        switch (name) {
+            case 'history':
+                if (val('mode') == 'replace-function' && value != replaceEditor.getText()) {
+                    replaceEditor.setText(value);
+                }
+                update();
+                break;
+            case 'text':
+                if (val('mode') == 'replace-text' && value != replaceEditor.getText()) {
+                    replaceEditor.setText(value);
+                }
+                update();
+                break;
+            case 'mode':
+                $replaceWithSelect.val(value);
+                onModeChanged();
+                break;
+        }
     }
 
     function updateTree() {
