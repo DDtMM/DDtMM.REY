@@ -1,41 +1,36 @@
 ﻿var modMapVisualizer = (function () {
     var $treeElem;
     var $textElem;
-    var $toggleButton;
+    var $moduleMenu;
 
-    var displayAsOptions = [
-        { opt: 'tree', text: 'Display as Tree' },
-        { opt: 'text', text: 'Display as Copyable Text' },
-       
+    var viewOptions = [
+        { opt: 'tree', text: 'Interactive Tree' },
+        { opt: 'text', text: 'Formatted Text' },
     ];
-    dgArrayDecorators.addEndless(displayAsOptions);
-    dgArrayDecorators.addQueries(displayAsOptions);
+
+    dgArrayDecorators.addQueries(viewOptions);
  
     function init($parentElement) {
-        var optVal = my.val('displayOption', (my.val('displayOption') || 'tree'));
-
-        optVal = displayAsOptions.qry.findFirst(function (val) { return (val.opt == optVal); },
-            displayAsOptions.qry.mutators.indexValueReturn);
-
-        displayAsOptions.endless.index = optVal.index;
         
-        $parentElement.append(
+
+         $parentElement.append(
             $('<div class="panel" />').append([
-                $('<div class="moduleMenu" />').append(
-                    $toggleButton = $('<div />', {
-                        'class': 'button',
-                        text: displayAsOptions.endless.peekNext().text,
-                        on: { 
-                            click: toggleDisplayAs
-                        }
-                    })
-                ),
+                $moduleMenu = $('<div class="moduleMenu tabs" />'),
                 $('<div class="fillHeight window"  />').append([
                     $treeElem = $('<div />'),
                     $textElem = $('<div style="display:none"/>')
                 ])
             ])
         );
+
+        for (var i = 0, il = viewOptions.length, opt; i < il; i++) {
+            opt = viewOptions[i];
+            $moduleMenu.append($('<div class="tab" />').html(opt.text).data('opt', opt.opt));
+        }
+
+        $moduleMenu.simpleOption({ mode: 'children' }).on('selected', function (ev, data) {
+            my.val('viewOption', $(data.selected).data('opt'), 'menu');
+        });
 
         $treeElem.simpleTree({
             nodeTransform: function (oldNode) {
@@ -76,27 +71,26 @@
                     data.node.endLine, data.node.endCol, 'selected-capture');
             }
         });
-        update();
+
         EVMGR(this).on("valueChanged", onValueChanged);
+        my.val('viewOption', (my.val('viewOption') || 'tree'))
     }
 
-    function toggleDisplayAs() {
-        my.val('displayOption', displayAsOptions.endless.next().opt);
-    }
 
     function onValueChanged(data, event) {
-
         switch (data.name) {
-            case 'displayOption':
- 
-                $toggleButton.html(displayAsOptions.endless.peekNext().text);
-
+            case 'viewOption':
+                if (data.source != 'menu') {
+                    $moduleMenu.children().filter(function () {
+                        return $(this).data("opt") == data.value
+                    }).simpleOption('select');
+                }
                 update();
                 break;
         }
     }
     function update() {
-        var opt = my.val('displayOption');
+        var opt = my.val('viewOption');
         if (opt == 'text') {
             $treeElem.hide();
             $textElem.show();

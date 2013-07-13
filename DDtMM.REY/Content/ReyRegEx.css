@@ -300,10 +300,15 @@ button:hover, button:active, .button:hover, .button:active, .iconButton:hover, .
     color: #686060;
     border-bottom:1px solid #888;
 }
+.moduleMenu.tabs
+{
+    padding-bottom: 0px;
+}
 .moduleMenu .tab
 {
     background: #c0d0f0;
     border: 1px solid #888;
+    border-width: 1px 1px 0px 1px;
     border-top-left-radius: 2px 5px;
     border-top-right-radius: 2px 5px; 
     cursor: pointer;

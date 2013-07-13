@@ -1,7 +1,13 @@
 ﻿var modCurrentSyntax = (function () {
     var $rootPanel,
         $normalTable,
-        $setTable;
+        $setTable,
+        $moduleMenu;
+
+    var viewOptions = [
+        { opt: 'normal', text: 'Normal and Within Groups' },
+        { opt: 'sets', text: 'Within Sets' },
+    ];
 
     function init($elem) {
         var normalName = 'Normal and Within Groups',
@@ -9,24 +15,11 @@
 
 
         $normalTable = $('<table class="moduleTable" />');
-        $setTable = $('<table class="moduleTable" />');
+        $setTable = $('<table class="moduleTable" style="display:none"/>');
 
         $elem.append(
             $rootPanel = $('<div class="panel" />').append([
-                $('<div class="moduleMenu">').append([
-                    $('<div class="tab sel" />').html(normalName).on('click', function() {
-                        $normalTable.show();
-                        $setTable.hide();
-                        $(this).parent().children('[class~="sel"]').removeClass('sel');
-                        $(this).addClass('sel');
-                    }),
-                    $('<div class="tab" />').html(setName).on('click', function () {
-                        $normalTable.hide();
-                        $setTable.show();
-                        $(this).parent().children('[class~="sel"]').removeClass('sel');
-                        $(this).addClass('sel');
-                    })
-                ]),
+                $moduleMenu = $('<div class="moduleMenu tabs">'),
                 $('<div class="fillHeight window" />').append([
                     $normalTable,
                     $setTable
@@ -34,7 +27,45 @@
 
             ])
         );
-        $setTable.hide();
+
+        for (var i = 0, il = viewOptions.length, opt; i < il; i++) {
+            opt = viewOptions[i];
+            $moduleMenu.append($('<div class="tab" />').html(opt.text).data('opt', opt.opt));
+        }
+
+        $moduleMenu.simpleOption({ mode: 'children' }).on('selected', function (ev, data) {
+            my.val('viewOption', $(data.selected).data('opt'), 'menu');
+        });
+
+        EVMGR(this).on("valueChanged", onValueChanged);
+        console.log(my.val('viewOption'));
+        my.val('viewOption', (my.val('viewOption') || 'normal'))
+    }
+
+    function onValueChanged(data, event) {
+        console.log(data.value);
+        switch (data.name) {
+            case 'viewOption':
+                if (data.source != 'menu') {
+                    console.log($moduleMenu.children().filter(function () {
+                        return $(this).data("opt") == data.value
+                    }));
+                    $moduleMenu.children().filter(function () {
+                        return $(this).data("opt") == data.value
+                    }).simpleOption('select');
+                }
+                switch (data.value) {
+                    case 'sets':
+                        $normalTable.hide();
+                        $setTable.show();
+                        break;
+                    default:
+                        $normalTable.show();
+                        $setTable.hide();
+                        break;
+                }
+                break;
+        }
     }
 
     function update() {

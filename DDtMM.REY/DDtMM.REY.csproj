@@ -208,6 +208,7 @@
       <SubType>Designer</SubType>
     </Content>
     <None Include="Properties\PublishProfiles\rey.gimenez.biz.pubxml" />
+    <Content Include="Scripts\dgSimpleOption-1.0.0.js" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -29,6 +29,7 @@ var TextRowColFinder = function (text) {
     // consider passing these values when doing a sequential search of char indices.
     this.findRowCol = function (charIndex, startingLow, startingHigh) {
         var foundRow = null,
+            mid,
 			low = (startingLow || 0),
             high = (startingHigh || this.maxIndex);
 

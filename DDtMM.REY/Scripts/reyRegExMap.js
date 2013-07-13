@@ -114,7 +114,6 @@ var reyRegExMap = (function () {
         var rootCapture;
         //var currentCapture;
         var parentGroupInfo;
-        var text;
         var indexOf;
         var matchCounter = 0;
         var groupInfo;
@@ -161,7 +160,7 @@ var reyRegExMap = (function () {
 
     // adds captures, going in reverse order for instances like (.)* 
     function addCaptures(match, parentGroupInfo, parentCapture) {
-        var groupInfo, indexOf, currentCapture;
+        var groupInfo, indexOf, currentCapture, text;
         for (var i = parentGroupInfo.children.length - 1; i >= 0; i--) {
             groupInfo = parentGroupInfo.children[i];
             text = match[groupInfo.internalGroupId];
