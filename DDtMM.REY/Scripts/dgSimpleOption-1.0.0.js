@@ -67,7 +67,7 @@ Creates a group of selectable items.
 				selectedClass = this.options.selectedClass,
 				$this = $(this.element),
 				deselected;
-			console.log(group);
+
 			deselected = $(group.items)
 				.filter('[class~="' + selectedClass + '"]')
 				.removeClass(selectedClass)

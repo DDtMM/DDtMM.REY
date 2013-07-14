@@ -38,18 +38,13 @@
         });
 
         EVMGR(this).on("valueChanged", onValueChanged);
-        console.log(my.val('viewOption'));
         my.val('viewOption', (my.val('viewOption') || 'normal'))
     }
 
     function onValueChanged(data, event) {
-        console.log(data.value);
         switch (data.name) {
             case 'viewOption':
                 if (data.source != 'menu') {
-                    console.log($moduleMenu.children().filter(function () {
-                        return $(this).data("opt") == data.value
-                    }));
                     $moduleMenu.children().filter(function () {
                         return $(this).data("opt") == data.value
                     }).simpleOption('select');

@@ -8,10 +8,8 @@
         { opt: 'text', text: 'Formatted Text' },
     ];
 
-    dgArrayDecorators.addQueries(viewOptions);
  
     function init($parentElement) {
-        
 
          $parentElement.append(
             $('<div class="panel" />').append([
