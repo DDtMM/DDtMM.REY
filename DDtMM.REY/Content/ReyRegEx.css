@@ -133,12 +133,13 @@ pre {
     padding-top: 2px;
     overflow-x:hidden;
     display:block;
+    width:100%;
 }
 .panelTitle .titleText
 {
     color: #008;
     padding-left:1em;
-    display: inline-block;
+    padding-right:1em;
     line-height:32px;
     text-transform:uppercase;
 }
