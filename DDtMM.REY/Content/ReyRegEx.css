@@ -202,7 +202,6 @@ header .logoMenu
 {
     padding-top:16px;
     padding-left:200px;
-    text-align:center;
     display:inline-block;
 }
 
@@ -251,7 +250,7 @@ button:hover, button:active, .button:hover, .button:active, .iconButton:hover, .
 {
     background-image:url(images/icons/icon-fileimport-24.png);
 }
-#saveRegexButton
+#saveSessionButton
 {
     background-image:url(images/icons/icon-save-24.png);
 }
@@ -282,6 +281,16 @@ button:hover, button:active, .button:hover, .button:active, .iconButton:hover, .
 {
     background:  #e9e4c2;
     cursor:pointer;
+}
+.menuItemsPanel li.disabled
+{
+    color: #686060;
+    font-style: italic;
+}
+.menuItemsPanel li.disabled:hover
+{
+    cursor:auto;
+    background:none;
 }
 #moduleContainer
 {

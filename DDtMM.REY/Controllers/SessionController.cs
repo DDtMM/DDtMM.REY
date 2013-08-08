@@ -1,4 +1,5 @@
-﻿using DDtMM.REY.Models;
+﻿using DDtMM.REY.Data;
+using DDtMM.REY.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,71 +16,61 @@ namespace DDtMM.REY
 {
     public class SessionController : ApiController
     {
-        private static readonly string appDataPathTemplate = 
-            HostingEnvironment.MapPath("~/App_Data/") + "{0}.xml";
-        
+
         public HttpResponseMessage Get(string id)
         {
-            SessionInfo session = null;
+            ReyDb db = new ReyDb();
+            DbResult<SessionInfo> result = db.GetSession(id);
+            HttpResponseMessage message;
 
-            try
+            if (result.IsValid)
             {
-                session = SerializableIO.DeSerializeObject<SessionInfo>(String.Format(appDataPathTemplate, id));
+                message = Request.CreateResponse(HttpStatusCode.OK, result.Value);
             }
-            catch (FileNotFoundException ex)
+            else
             {
-                return Request.CreateErrorResponse(HttpStatusCode.NotFound, String.Format("{0} not found.", ex));
-            }
-            catch (Exception ex)
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
+                message = message = ResponseFromError(result);
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, session);
-        }
-
-        // POST api/<controller>
-        public HttpResponseMessage Post([FromBody]SessionInfo value)
-        {
-            string fileName;
-            Console.WriteLine(value);
-            try {
-                string chars = "abcdefghijklmnopqrstuvwxyz1234567890";
-                int charsMaxIndex = chars.Length - 1;
-                int fileLength = 8;
-                Random rnd = new Random();
-   
-                do {
-                    fileName = "";
-                    for (int i = 0; i < fileLength; i++)
-                    {
-                        fileName += chars[rnd.Next(charsMaxIndex)];
-                    }
-                }
-                while (File.Exists(String.Format(appDataPathTemplate, fileName)));
-
-                value.SerializeObject<SessionInfo>(String.Format(appDataPathTemplate, fileName));
-            } 
-            catch (Exception ex) 
-            {
-                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
-            }
-
-            var message = Request.CreateResponse(HttpStatusCode.Created);
-            var uri = Url.Link("SavedSession", new { id = fileName });
-
-            message.Headers.Location = new Uri(uri);
             return message;
         }
 
-        //// PUT api/<controller>/5
-        //public void Put(int id, [FromBody]string value)
-        //{
-        //}
+        public HttpResponseMessage Post([FromBody]SessionInfo value)
+        {
+            ReyDb db = new ReyDb();
+            DbResult<SessionInfo> result = db.SaveSession(value);
+            HttpResponseMessage message;
 
-        //// DELETE api/<controller>/5
-        //public void Delete(int id)
-        //{
-        //}
+            if (result.Status == DbResultStatus.OK)
+            {
+                message = Request.CreateResponse(HttpStatusCode.Created);
+                var uri = Url.Link("SavedSession", new { id = value.ID });
+                message.Headers.Add("rey_sessionid", value.ID);
+                message.Headers.Location = new Uri(uri);
+            }
+            else
+            {
+                message = ResponseFromError(result);
+            }
+            
+            return message;
+        }
+
+        /// <summary>
+        /// Creates an http error response from an error db Result
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="errorResult"></param>
+        /// <returns></returns>
+        private HttpResponseMessage ResponseFromError<T>(DbResult<T> errorResult)
+        {
+            if (errorResult.Exception != null)
+            {
+                return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, errorResult.Message,
+                    errorResult.Exception);
+            }
+
+            return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, errorResult.Message);
+        }
     }
 }

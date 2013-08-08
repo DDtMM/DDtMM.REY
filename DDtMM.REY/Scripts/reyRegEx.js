@@ -4,6 +4,7 @@ var reyRegEx = (function ($) {
     var reRegexTextUpdateTimeoutId = -1;
     var patternEditor;
     var targetEditor;
+    var sessionID;
 
     var $editor = $('#RegexEditor');
     var $loadUrlButton = $('#RegexEditor button[id="loadUrlButton"]');
@@ -16,7 +17,8 @@ var reyRegEx = (function ($) {
 
     var $loader = $('#loader');
 
-    function windowUnloaded() {
+    // saves session to local storage
+    function saveSession() {
 
         $allOptions.each(function () { dgStorage.val('RegexEditor_' + this.id, this.checked ); });
         dgStorage.val('patternEditor_INPUTTEXT', patternEditor.getText());
@@ -32,8 +34,17 @@ var reyRegEx = (function ($) {
     };
 
     // saves a session to file system.
-    function postSession() {
+    function postSession(saveAsId) {
+        if (saveAsId) {
+            var mySessions = dgStorage.val('mySessions');
+            if (!mySessions || mySessions.indexOf(saveAsId) == -1) {
+                showMessage('Error', 'Can not update session.  Create a new one instead');
+                return;
+            }
+        }
+
         var session = {
+            ID: saveAsId,
             Regex: my.reText,
             Modifiers: my.reOptions,
             Target: targetEditor.getText().substr(0, 65535),
@@ -51,16 +62,22 @@ var reyRegEx = (function ($) {
                 });
             }
         }
-
+        showLoading('Saving Session');
         $.ajax('/api/Session/', {
             method: 'post',
             data: session,
             success: function (data, status, xhr) {
+                // set current session ID
+                setSessionID(xhr.getResponseHeader('rey_sessionid'), true);
+
                 showMessage('Saved', 'Session saved to:\n ' + xhr.getResponseHeader('location'));
             },
             error: function (xhr, status, data) {
                 showMessage('Error', 'Unable to save session.');
                 console.log(['error', status, data]);
+            },
+            complete: function () {
+                hideLoading();
             }
         });
     };
@@ -76,6 +93,7 @@ var reyRegEx = (function ($) {
             loadInputsFromStorage();
         }
     }
+
     // reads inputs from query string
     function loadFromQueryString() {
 
@@ -141,7 +159,7 @@ var reyRegEx = (function ($) {
                     setting = settings[i];
                     reyModules.setStartupModuleValue(setting.ModuleID, setting.Key, setting.Value);
                 }
-                
+                setSessionID(data.ID, true);
                 targetEditor.setText(data.Target);
                 patternEditor.setText(data.Regex);
                 my.reOptions = data.Modifiers;
@@ -236,12 +254,14 @@ var reyRegEx = (function ($) {
         });
     };
 
+    // shows loading message.  This prevent ui elements from being accessed
     function showLoading (message)
     {
         $loader.find('#loading-message').html((message == null) ? "LOADING" : message);
         $loader.show();
     };
 
+    // hides loading message
     function hideLoading (duration) {
         if (duration == null) {
             $loader.fadeOut(250);
@@ -362,6 +382,7 @@ var reyRegEx = (function ($) {
         return options;
     };
 
+    // sets the current regular expression
     function setRe(reText, reOptions) {
         if (reOptions !== undefined) my.reOptions = reOptions;
         my.reOptions = reOptions;
@@ -369,6 +390,30 @@ var reyRegEx = (function ($) {
         my.trigger('reUpdated', { reText: my.reText, reOptions: my.reOptions });
 
         onInputsChanged();
+    }
+
+    // sets the current session id 
+    function setSessionID(id, addToMySessions) {
+        sessionID = id;
+
+        var mySessions = dgStorage.val('mySessions') || new Array();
+
+        if (id && (addToMySessions || mySessions.indexOf(id) != -1)) {
+            $('#updateSession').removeClass('disabled').html('Update "<i>' + id + '</i>"');
+            var url = window.location.protocol + '//' + window.location.host + '/s/' + id;
+            $('#gotoSessionUrl').show().html('<a href="' + url + '">' + url + '</a>');
+        }
+        else {
+            $('#updateSession').addClass('disabled').text('Update');
+            $('#gotoSessionUrl').hide();
+        }
+
+        if (addToMySessions) {
+            if (mySessions.indexOf(id) == -1) {
+                mySessions.push(id);
+                dgStorage.val('mySessions', mySessions);
+            }
+        }
     }
 
     // create a new instance of RegExp using currnet options and text.
@@ -382,6 +427,17 @@ var reyRegEx = (function ($) {
             my.matchMap = newMap;
             targetEditor.refreshMarkers();
             my.trigger('mapUpdated', newMap);
+        }
+    }
+
+    function menuCommand(commandID) {
+        switch (commandID) {
+            case 'saveNewSession':
+                postSession();
+                break;
+            case 'updateSession':
+                postSession(sessionID);
+                break;
         }
     }
 
@@ -418,31 +474,31 @@ var reyRegEx = (function ($) {
         // generic ui events
 
         $('.fillHeight').blockUtil('fillHeight');
-        $(window).unload(windowUnloaded);
-
-        EVMGR($('#saveRegexButton')).on('click', postSession);
+        $(window).unload(saveSession);
 
         $allOptions.click(patternOptionsChanged);
 
-        EVMGR($('.menuLabel')).on('click', function () {
-            $(this).parent().find('.menuItemsPanel').toggle(200);
+        $('.menuLabel').on('click', function () {
+            var $menu = $(this).parent();
+            var $itemsPanel = $menu.find('.menuItemsPanel');
+            clearTimeout($menu.data('hide_menu_to_id'));
+            $itemsPanel.toggle(125);
         });
-
-        EVMGR($('.menu')).on('mousemove click', function () {
-            var id = EVMGR($(this)).delayedTrigger('idle', null, 5000, true);
-        });
-
-        EVMGR($('.menu')).on('mouseleave', function () {
+        $('.menu').on('mousemove click', function () {
             var $menu = $(this);
-            if ($menu.css('display') != 'none') {
-                EVMGR($menu).cancelTrigger('idle');
-                $menu.find('.menuItemsPanel').hide(500);
-            }
+            clearTimeout($menu.data('hide_menu_to_id'));
+            $menu.data('hide_menu_to_id', setTimeout(function () {
+                $menu.find('.menuItemsPanel').hide(250);
+            }, 5000));
+        }).on('mouseleave', function () {
+            var $menu = $(this);
+            clearTimeout($menu.data('hide_menu_to_id'));
+            $menu.find('.menuItemsPanel').hide(250);
         });
-
-        EVMGR($('.menu')).on('idle', function () {
-            var $itemsPanel = $(this).find('.menuItemsPanel');
-            if ($itemsPanel.css('display') != 'none') $itemsPanel.hide(500);
+        $('.menuItemsPanel').children().on('click', function (ev) {
+            if (!$(this).hasClass('disabled')) {
+                menuCommand(this.id, this);
+            }
         });
 
         $('.menuItemsPanel').hide();
