@@ -9,6 +9,7 @@ namespace DDtMM.REY.Data
 
     public class DbResult<T>
     {
+        #region static methods
         /// <summary>
         /// Create a valid result
         /// </summary>
@@ -55,14 +56,39 @@ namespace DDtMM.REY.Data
             };
         }
 
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// A returned value from Db operation
+        /// </summary>
         public T Value { get; set; }
+
+        /// <summary>
+        /// resuls status
+        /// </summary>
         public DbResultStatus Status { get; set; }
+
+        /// <summary>
+        /// A message, typically populated if an error occurred.
+        /// </summary>
         public string Message { get; set; }
+
+        /// <summary>
+        /// An exception that caused the db operation to terminate
+        /// </summary>
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// Did the operation occur succesfully
+        /// </summary>
         public bool IsValid
         {
             get { return Status == DbResultStatus.OK; }
         }
+
+        #endregion
 
         public DbResult()
         {

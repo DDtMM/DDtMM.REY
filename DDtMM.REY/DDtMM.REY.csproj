@@ -157,7 +157,7 @@
     <Content Include="Scripts\ace\theme-monokai.js" />
     <Content Include="Scripts\ace\worker-javascript.js" />
     <Content Include="Scripts\dgLimitedStack-1.0.1.js" />
-    <Content Include="Scripts\dgSimpleTree-1.0.4.js" />
+    <Content Include="Scripts\dgSimpleTree-1.0.5.js" />
     <Content Include="Scripts\dgSplitter-1.0.0.js" />
     <Content Include="Scripts\modRegexHistory.js" />
     <Content Include="Scripts\dgBlocks-1.0.2.js" />

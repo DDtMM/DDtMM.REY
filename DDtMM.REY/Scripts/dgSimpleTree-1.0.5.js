@@ -1,4 +1,6 @@
 ﻿/*
+dgSimpleTree version 1.0.5
+
 options:
 nodes: object with nodes.
 dataTemplate: default dataTemplate.
@@ -22,10 +24,9 @@ $.widget("dg.simpleTree", {
         this._$itemTemplate = $('<li />');
         this._$listTemplate = $('<ul />', { 'class': 'dg-tree-list' });
         this._$rootUl = $('<ul />', { 'class': 'dg-tree', 'data-tree-level': 0 });
-        this._root = { children: new Array(), value: null, id: '_0_' };
+        this._root = { children: new Array(), value: null, id: '_0_', expanded: true };
         this._nodeIndex = {};
         this.element.append(this._$rootUl);
-
     },
     
 
@@ -46,62 +47,85 @@ $.widget("dg.simpleTree", {
         return node;
     },
 
-    addNode: function (node, parentID) {
+    addNode: function (node, parentID, startIndex) {
         this.addNodes([node], parentID);
     },
 
-    addNodes: function (nodes, parentID) {
+    addNodes: function (nodes, parentID, startIndex) {
 
         var parentNode = (!parentID) ? this._root : this._nodeIndex[parentID];
         if (!parentNode.children) {
             parentNode.children = new Array();
         }
 
-        var node;
+        var node,
+            nodesToAdd = [];
+
         for (var i in nodes) {
             node = this._executeNodeTransform(nodes[i]);
             // if transform did not include id, create one.
             if (node.id === undefined) node.id = parentNode.id + '.' + i;
-            parentNode.children.push(node);
+            nodesToAdd.push(node);
             node.parent = parentNode;
             this._populateNodeIndex(node);
         }
 
-
-        this._renderChildren(parentNode, {
-            level: this._getNodeLevel(parentNode),
-            $dataTemplate: this._getNodeTemplate(parentNode),
-            $ul: this._getNodeUl(parentNode)
-        });
-        
-    },
-
-    // attempts to maintain state
-    swapNodes: function (nodes) {
-        
-        var expanded = [];
-        var newNode;
-        this._nodesWithProperty(this._root.children, 'expanded', true, expanded);
-        this.empty();
-        
-        this.addNodes(nodes);
-        for (var oldId in expanded) {
-
-            if ((newNode = this._nodeIndex[expanded[oldId]])) {
-                this.expandNode(newNode, false, {});
-            }
+        // insert children if start is specified
+        if (startIndex !== undefined && startIndex > -1 && startIndex < parentNode.children.length) {
+            parentNode.children = parentNode.children.slice(0, startIndex)
+                .concat(nodesToAdd, parentNode.children.slice(startIndex));
+        } else {
+            parentNode.children = parentNode.children.concat(nodesToAdd);
         }
- 
+
+        if (parentNode.expanded) {
+            this._renderChildren(parentNode, {
+                level: this._getNodeLevel(parentNode),
+                $dataTemplate: this._getNodeTemplate(parentNode),
+                $ul: this._getNodeUl(parentNode)
+            });
+        }
+        
     },
 
-    _nodesWithProperty: function(nodes, propName, propVal, results) {
-        var node;
+    
+    // swaps all nodes in the tree, attempting to maintain open and closed state
+    swapNodes: function (nodes) {
+        var newNode;
+        var expanded = this._nodesWithProperty(this._root.children, 'expanded', true);
+
+        this.empty();
+        this.addNodes(nodes);
+        this.expandNodes(expanded);
+    },
+
+    // exchanges node with matching id.
+    swapNode: function(node) {
+        var originalNode = this.getNode(node.id);
+        var nodeIndex = originalNode.parent.indexOf(originalNode);
+        this.removeNode(originalNode);
+        this.addNode(node, originalNode.parent.id, nodeIndex);
+
+        if (originalNode.expanded) {
+            this.expandNode(node, false);
+            this.expandNodes(this._nodesWithProperty(originalNode.children, 'expanded', true));
+        }
+    },
+
+    // returns all node ids representing a node with a given propertyname and value;
+    _nodesWithProperty: function(nodes, propName, propVal) {
+        var node,
+            results = [];
+
         for (var i in nodes) {
             node = nodes[i];
             if (node[propName] == propVal) results.push(node.id);
-            if (this._hasChildren(node))
-                this._nodesWithProperty(node.children, propName, propVal, results);
+            if (this._hasChildren(node)) {
+                results = results.concat(this._nodesWithProperty(node.children, propName, propVal));
+            }
         }
+
+        return results;
     },
 
     _renderNode: function (node, parentUiState) {
@@ -113,8 +137,13 @@ $.widget("dg.simpleTree", {
    
         var self = this;
         var uiState;
-        $labelElement.click(function () { self._onNodeClick(this); });
 
+        // handle label click.
+        $labelElement.on('click mousedown mouseup mouseover mouseleave', function (ev) {
+            self._onNodeEvent(ev, this);
+        });
+
+        // set label text, if node value is an object then we want to update template, otherwise just use the value.
         if (typeof value == 'object') {
             for (dataID in value) {
                 $labelElement.find('[name="' + dataID + '"]').attr(dataID, value[dataID]);
@@ -129,7 +158,10 @@ $.widget("dg.simpleTree", {
         $itemElement.append($labelElement);
 
         if (this._hasChildren(node)) {
-            $labelElement.before(this.options.handleTemplate.clone().click(function () { self._onHandleClick(this); }));
+            $labelElement.before(this.options.handleTemplate.clone().click(function (ev) {
+                self._onHandleClick(this);
+                ev.preventDefault();
+            }));
             $labelElement.dblclick(function () { self._onHandleClick(this); });
   
             if (node.expanded) {
@@ -146,7 +178,10 @@ $.widget("dg.simpleTree", {
                 $itemElement.addClass('dg-tree-parent dg-tree-collapsed');
             }
         } else {
-            $labelElement.before(this.options.handleTemplate.clone().click(function () { self._onNodeClick(this); }));
+            $labelElement.before(this.options.handleTemplate.clone().on(
+                'click mousedown mouseup mouseover mouseleave', function (ev) {
+                    self._onNodeEvent(ev, $labelElement);
+            }));
             $itemElement.addClass('dg-tree-empty');
         }
 
@@ -207,7 +242,7 @@ $.widget("dg.simpleTree", {
         return (node.children && node.children.length > 0);
     },
 
-    _getNodeLi: function (node) {
+    getNodeLi: function (node) {
         return this._$rootUl.find('li[data-tree-id="' + node.id + '"]');
     },
     _getNodeUl: function (node) {
@@ -252,6 +287,20 @@ $.widget("dg.simpleTree", {
 
     },
 
+    // gets node from element (dom or jquery), moving up the tree until it finds data-tree-id attribute
+    getElementNode: function ($element) {
+        if ($element) {
+            if (!$element.jquery) $element = $($element);
+            if ($element.length > 0) {
+                var nodeID = $element.attr('data-tree-id');
+                if (nodeID !== undefined) return this.getNode(nodeID);
+                else if ($element != this._$rootUl) {
+                    return this.getElementNode($element.parent());
+                }
+            }
+        }
+        return null;
+    },
 
     // populates node index with children.  
     _populateNodeIndex: function(node) {
@@ -275,7 +324,7 @@ $.widget("dg.simpleTree", {
         this._trigger("togglestart", null, { node: node });
 
         if (!node.expanded) {
-            toggleSuccess = this.expandNode(node, animate, {});
+            toggleSuccess = this.expandNode(node, animate);
         } else {
             toggleSuccess = this.collapseNode(node, animate, {});
         }
@@ -284,7 +333,7 @@ $.widget("dg.simpleTree", {
 
     // gets common ui elements and ensures that a toggle can occur.
     _toggleStart: function (node, uiState) {
-        if (this._jQueryEmpty(uiState.$li)) uiState.$li = this._getNodeLi(node);
+        if (this._jQueryEmpty(uiState.$li)) uiState.$li = this.getNodeLi(node);
 
         // in the middle of changing state
         if (uiState.$li.hasClass('dg-tree-toggling')) return false;
@@ -308,10 +357,11 @@ $.widget("dg.simpleTree", {
     /* 
        node: a node object, 
        animate: bool to run animate, 
-       uiState: { } node ui Properties
-       skipChecks: bool, trust the callee has provided all information.
+       uiState: bag of node ui Properties (internal use only)
     */
     expandNode: function (node, animate, uiState) {
+        // start ui state
+        if (!uiState) uiState = {};
         if (node.expanded || !this._toggleStart(node, uiState)) return false;
         if (this._jQueryEmpty(uiState.$dataTemplate)) uiState.$dataTemplate =
                 this._getNodeTemplate(node);
@@ -322,12 +372,34 @@ $.widget("dg.simpleTree", {
         return this._doToggle(node, animate, uiState, this._afterExpand);
     },
 
+    // expands an array of node ids
+    expandNodes: function(nodeIDs, animate) {
+        var node;
+        for (var i in nodeIDs) {
+            if ((node = this._nodeIndex[nodeIDs[i]])) {
+                this.expandNode(node, animate);
+            }
+        }
+    },
+
+    refreshNode: function(node) {
+        if (node.parent.expanded) {
+            this.getNodeLi(node).replaceWith(
+                this._renderNode(node, {
+                    level: this._getNodeLevel(node),
+                    $dataTemplate: this._getNodeTemplate(node)
+                })
+            );
+        }
+    },
+
     _afterExpand: function (node, uiState) {
         uiState.$li.removeClass('dg-tree-collapsed dg-tree-toggling').addClass('dg-tree-expanded');
         node.expanded = true;
     },
 
     collapseNode: function (node, animate, uiState) {
+        if (!uiState) uiState = {};
         if (!node.expanded || !this._toggleStart(node, uiState)) return false;
         if (this._jQueryEmpty(uiState.$ul)) uiState.$ul = this._getNodeUl(node);
         this._doToggle(node, animate, uiState, this._afterCollapse);
@@ -342,9 +414,12 @@ $.widget("dg.simpleTree", {
 
 
     /** SECTION Events **/
-
-    _onNodeClick: function (target) {
-        this._trigger("click", null, { node: this._nodeIndex[$(target).parent().attr('data-tree-id')] });
+    // bubble up node event
+    _onNodeEvent: function (ev, nodeElement) {
+        var node = this.getElementNode(nodeElement);
+        if (node != null) {
+            this._trigger(ev.type, null, { node: node });
+        }
     },
 
     _onHandleClick: function (target) {
@@ -357,6 +432,7 @@ $.widget("dg.simpleTree", {
         return (!$elem || $.isEmptyObject($elem));
     },
 
+    /** SECTION options **/
     _setOption: function (key, value) {
         this._super(key, value);
     },

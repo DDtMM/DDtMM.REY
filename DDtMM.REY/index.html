@@ -11,14 +11,14 @@
         <div id="saveSessionMenu" class="menu">
             <div id="saveSessionButton" class="menuLabel iconButton" >Save</div>
             <ul id="saveSessionItemPanel" class="menuItemsPanel" >
-                <li id="saveNewSession" >Save New</li>
                 <li id="updateSession" class="disabled" >Update</li>
+                <li id="saveNewSession" >Save New</li>
                 <li id="gotoSessionUrl" style="display:none"></li>
             </ul>
         </div>
         <div class="iconButton" id="helpButton" style="vertical-align:top" >Help</div>
     </div>
-    <span style="font-size:.625em; font-style:italic; float:right">(v0.51.01 2013-08-08)&nbsp;</span>
+    <span style="font-size:.625em; font-style:italic; float:right">(v0.51.02 2013-08-09)&nbsp;</span>
 </header>
 <div id="RegexEditor" class="fillHeight">
 <div id="inputPanel" class="panel">
@@ -149,13 +149,14 @@
     </div>
     <div id="saving" title="Saving your Work">
         <h1>Saving your Work</h1>
-        <p>Clicking the <b>Save</b> button over the Regular Expression will create a semi-permalink to your
-            work.  This includes your pattern, target text, currently displayed module, and module values.
+        <p>Clicking the <b>Save</b> button over the Regular Expression will bring down a menu that
+            will allow you to a save a new copy of your current session or update the existing session.
         </p>
-        <p>This is a semi-permalink only because at some point there will be an expiration policy.  Something 
-            like after a year of nobody accessing it then it'll get deleted.
+        <p>When you save a new session, a permalink will be returned that you can use to access your
+            work later.  If you make changes, but don't want to save a new item, you can click Update.
         </p>
-        <p>This is beta functionality, and as such, it may not work as advertised (or at all).</p>
+        <p>For now, you will only be able to update a link on the computer you initialy created it on.
+        </p>
     </div>
     <div id="tools" title="Tools">
         <h1>Tools</h1>
@@ -234,13 +235,19 @@ function viewCaptures () {
         <p>
             What's coming up:
         </p>
+        <h2>Authentication</h2>
+        <p>
+            I'm going to get around to adding oauth athentication so that I can expand the saving functionality, and then add some community features.
+        </p>
         <h2>Saving Sessions</h2>
         <p>
-            Saving Sessions is well on its way.  The data is being saved to the file system, and I
-            want to move it to a database.  Also want to add the ability to save history and allow 
-            for versions like jsFiddle.  
+            Saving Sessions is well on its way.  I've moved over to a hosted mongodb instance on
+            <a href="http://mongolab.com">mongolab.com</a>.
         </p>
-        <h2>New Functionality</h2>
+        <p>    
+            Eventually want to add the ability to save history and allow for versions like jsFiddle.  
+        </p>
+        <h2>More Regex engines</h2>
         <p>
             This is far into the future, but I want to add server side regular expression functionality.
             I really only have to override one module to make this possible in its most basic form, but then
@@ -248,10 +255,8 @@ function viewCaptures () {
         </p>
         <h2>Tool Updates</h2>
         <ul>
-            <li>History: Currently truncates the regex if it gets too long.  On hovers and single clicks I
-                want show the full string, plus the number of matches on the current target text.
-            </li>
             <li>Match Visualizer: Highlight the group in the regex text when hovering over a match. </li>
+            <li>Match Visualizer: Hide line numbers on formatted text tab. </li>
         </ul>
         <h2>New Tools</h2>
         <ul>
@@ -263,7 +268,8 @@ function viewCaptures () {
         </ul>
         <h2>Misc</h2>
         <ul>
-            <li>Clean up code -- I'm slowly sinking into speghetti world.</li>
+            <li>Clean up code -- I'm slowly sinking into speghetti world...
+            </li>
         </ul>
     </div>
     <div id="acknowledgements" title="Acknowledgements">
@@ -282,14 +288,18 @@ function viewCaptures () {
         </p>
         <h3><a href="http://jquery.com/">jQuery</a> and <a href="http://jqueryui.com/">jQuery UI</a></h3>
         <p>JavaScript would be such a pain without jQuery.</p>
+        <h3><a href="http://www.mongodb.org/">Mongodb</a></h3>
+        <p>
+            I started using Mongodb for the file saving.  I love how easy it is to use.
+        </p>
         <h3><a href="http://modernizr.com/">Modernizr</a></h3>
         <p>One day we will live in a word without cross-browser compatibility issues.  
             Until that day there is Modernizr.</p>
         <h2>Reference Sites</h2>
         <h3><a href="http://www.regular-expressions.info/">regular-expressions.info/</a></h3>
         <p>I've been using this website forever.  Everything you need to know about Regular Expressions you can find here.</p>
-        <h3><a href="http://www.w3schools.com/">w3 schools</a></h3>
-        <p>This always seems to comes u first when I search for anything JavaScript...</p>
+        <h3><a href="http://www.stackoverflow.com/">Stack Overflow</a></h3>
+        <p>I've recently become addicted to this site, and it is my go to for answers.</p>
         <h3><a href="http://developer.mozilla.org">Mozilla Developer Network</a></h3>
         <p>... and this comes up second or third.  Plus it was a little more clear about Regular Expressions in JavaScript.</p>
         <h3><a href="http://www.html5rocks.com/">HTML5 ROCKS</a></h3>
@@ -301,6 +311,9 @@ function viewCaptures () {
         <h3>... that other one...</h3>
         <p>There was another one where I got the idea to upload files and import urls from.  
             I apologize to the author for forgetting.</p>
+        <h2>Hosting providers</h2>
+        <h3><a href="http://www.mongolab.com">Mongo Lab</a></h3>
+        <p>Mongolab provides free mongodb hosting.</p>
     </div>
 </div>
 </div>
@@ -308,7 +321,7 @@ function viewCaptures () {
     <img src="/images/loader3.gif" />
     <div id="loading-message">LOADING</div>
 </div>
-<script src="/Scripts/jquery-1.9.1.js"></script>
+<!--<script src="/Scripts/jquery-1.9.1.js"></script>
 <script src="/Scripts/jquery-ui-1.10.2.custom.js"></script>
 <script src="/Scripts/jquery.ui.touch-punch.js"></script>
 <script src="/Scripts/modernizr-2.6.2.js"></script>
@@ -318,7 +331,7 @@ function viewCaptures () {
 <script src="/Scripts/dgDocs-0.0.3.js"></script>
 <script src="/Scripts/dgEventManager-0.9.2.js"></script>
 <script src="/Scripts/dgSelectDialog-0.0.2.js"></script>
-<script src="/Scripts/dgSimpleTree-1.0.4.js"></script>
+<script src="/Scripts/dgSimpleTree-1.0.5.js"></script>
 <script src="/Scripts/dgStorage-1.0.2.js"></script>
 <script src="/Scripts/dgLimitedStack-1.0.1.js"></script>
 <script src="/Scripts/dgSplitter-1.0.0.js"></script>
@@ -340,9 +353,9 @@ function viewCaptures () {
 <script src="/Scripts/modStringSplit.js"></script>
 <script src="/Scripts/modCurrentSyntax.js"></script>
 <script src="/Scripts/modRegexHistory.js"></script>
-<script src="/Scripts/reyRegEx.js" type="text/javascript" ></script>
+<script src="/Scripts/reyRegEx.js" type="text/javascript" ></script>-->
 
-<!--<script src="/scripts/ace-min/ace.js"></script> 
-<script src="/scripts/minified.js" type="text/javascript" ></script>-->
+<script src="/scripts/ace-min/ace.js"></script> 
+<script src="/scripts/minified.js" type="text/javascript" ></script>
 </body>
 </html>

@@ -9,23 +9,26 @@
             token.value.replace('<', '&lt;').replace('>', '&gt;') + '</span>';
     }
 
-    function stylizeRe(tokenizedPattern) {
+    function stylizeRe(tokenizedPattern, ignoreLength) {
         var strLen = 0,
             token,
             styledReText = '';
         
         var formatted = reyFormatting.formatRegexTokens(tokenizedPattern.tokens);
+  
         for (var i = 0, il = formatted.length; i < il; i++) {
-            if (strLen > maxReLength) {
+            if (!ignoreLength && strLen > maxReLength) {
                 // jump ahead because this is too long
                 styledReText += '<i> ... </i>';
                 i = il - 1;
             }
             token = formatted[i];
             strLen += token.value.length;
+            
             styledReText += createTokenHTML(token);
             
         }
+
         return styledReText;
     }
 
@@ -45,6 +48,7 @@
                 var id = history.length();
                 history.push({
                     reText: data.reText,
+                    reOptions: data.reOptions,
                     value: '<span class="handle">' + (id + 1) + ': </span>' + stylizeRe(reyRegEx.tokenizedPattern),
                     id: id
                 });
@@ -56,13 +60,15 @@
         $elem = $parentElement;
         $elem.simpleTree({
             nodeTransform: function (data) {
-                   return {
+                return {
                     reText: data.reText,
+                    reOptions: data.reOptions,
                     value: data.value,
                     id: data.id
                 }
             },
             click: function (ev, data) {
+
                 var nodeID = data.node.id;
                 selectedIndex = parseInt(nodeID);
                 var $treeElem = $elem.find('[data-tree-id="' + nodeID + '"]');
@@ -70,6 +76,21 @@
                 $treeElem.removeClass('history-cut').prevAll().removeClass('history-cut');
                 reyRegEx.getPatternEditor().setText(data.node.reText);
             }
+        }).one('simpletreemouseover', treeNodeMouseover);
+    }
+
+    // tree node mousever event handler
+    function treeNodeMouseover(ev, data) {
+        var node = data.node;
+        node.originalHtml = node.value;
+        node.value = '<span class="handle">' + (node.id + 1) + ': </span>' +
+            stylizeRe(regexParser.tokenize(node.reText, node.reOptions), true);
+        $elem.simpleTree('refreshNode', node)
+            .one('simpletreemouseleave', function () {
+            node.value = node.originalHtml;
+            node.originalHtml = '';
+              $elem.simpleTree('refreshNode', node)
+                .one('simpletreemouseover', treeNodeMouseover);
         });
     }
 

@@ -159,7 +159,7 @@ var reyRegEx = (function ($) {
                     setting = settings[i];
                     reyModules.setStartupModuleValue(setting.ModuleID, setting.Key, setting.Value);
                 }
-                setSessionID(data.ID, true);
+                setSessionID(data.ID, false);
                 targetEditor.setText(data.Target);
                 patternEditor.setText(data.Regex);
                 my.reOptions = data.Modifiers;

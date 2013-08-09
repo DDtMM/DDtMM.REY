@@ -20,7 +20,8 @@
 
         if (tokenHoverCallback != null) {
             $('#' + replaceDivId).on('mousemove', function (ev) {
-                var pos = my.editor.renderer.pixelToScreenCoordinates(ev.clientX, ev.clientY);
+                //var pos = my.editor.renderer.pixelToScreenCoordinates(ev.clientX, ev.clientY);
+                var pos = my.editor.renderer.screenToTextCoordinates(ev.clientX, ev.clientY);
                 tokenHoverCallback(my.editor.getSession().getTokenAt(pos.row, pos.column));
             });
             $('#' + replaceDivId).on('mouseout', function (ev) {

@@ -9,6 +9,7 @@ using MongoDB.Driver.Builders;
 using System.Text;
 using DDtMM.REY.Models;
 using MongoDB.Bson.Serialization;
+using System.Text.RegularExpressions;
 
 namespace DDtMM.REY.Data
 {
@@ -16,20 +17,23 @@ namespace DDtMM.REY.Data
     {
 
         private MongoDatabase _db = null;
-        private MongoDatabase ConnectToRey()
+ 
+        private MongoDatabase Connect(bool forceConnect = false)
         {
-            if (_db == null) _db = Connect().GetServer().GetDatabase("rey");
+            if (_db == null || forceConnect)
+            {
+                var conn = WebConfigurationManager.ConnectionStrings["rey"].ConnectionString;
+                // get the database we are connecting to
+                var dbName = Regex.Match(conn, @"(?<=//[^/]+/).+").Value;
+                return _db = new MongoClient(conn).GetServer().GetDatabase(dbName);
+            }
             return _db;
-        }
-        private MongoClient Connect()
-        {
-            return new MongoClient(WebConfigurationManager.ConnectionStrings["rey"].ConnectionString);
         }
 
 
         private int GeNextSequenceID(string collection) 
         {
-            MongoDatabase db = ConnectToRey();
+            MongoDatabase db = Connect();
             MongoCollection sequenceid = db.GetCollection("sequenceid");
 
             try
@@ -56,7 +60,7 @@ namespace DDtMM.REY.Data
 
         public DbResult<SessionInfo> SaveSession(SessionInfo session)
         {
-            MongoDatabase db = ConnectToRey();
+            MongoDatabase db = Connect();
             
             if (String.IsNullOrEmpty(session.ID))
             {
@@ -77,7 +81,7 @@ namespace DDtMM.REY.Data
 
         public DbResult<SessionInfo> GetSession(string id)
         {
-            MongoDatabase db = ConnectToRey();
+            MongoDatabase db = Connect();
             try
             {
                 FindAndModifyResult result = db.GetCollection<SessionInfo>("session").FindAndModify(
