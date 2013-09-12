@@ -336,20 +336,20 @@ button:hover, button:active, .button:hover, .button:active, .iconButton:hover, .
     color: #484080;
  
 }
-#patternEditorMessage
+.moduleMessage
 {
     color:#fff8d0;
     font-size:.8em;
-    border: 2px inset #8478c8;
-    padding: .2em;
-    margin: .2em 0;
-    line-height:1em;
-    min-height:1em;
+    border: 1px solid #8478c8;
+    padding: .5em;
+    margin:  .2em 0 0 0;
+    line-height:1.25em;
+    min-height:1.25em;
     background: #102000;
     white-space:pre;
     
 }
-#patternEditorMessage.errorMode
+.moduleMessage.errorMode
 {
     color:#f04040;
     background: #402020;

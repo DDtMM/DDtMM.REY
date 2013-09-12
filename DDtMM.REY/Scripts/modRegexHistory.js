@@ -33,7 +33,7 @@
     }
 
     function init($parentElement) {
-        reyRegEx.on('reUpdated', function (data) {
+        $(reyRegEx).on('reUpdated', function (data) {
 
             var addData = (history.isEmpty() || history.peek().reText != data.reText);
 

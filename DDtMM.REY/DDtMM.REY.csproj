@@ -156,13 +156,18 @@
     <Content Include="Scripts\ace\theme-dawn.js" />
     <Content Include="Scripts\ace\theme-monokai.js" />
     <Content Include="Scripts\ace\worker-javascript.js" />
+    <Content Include="Scripts\dgBench-1.0.0.js" />
+    <Content Include="Scripts\dgDelayedExecution-1.0.0.js" />
     <Content Include="Scripts\dgLimitedStack-1.0.1.js" />
     <Content Include="Scripts\dgSimpleTree-1.0.5.js" />
     <Content Include="Scripts\dgSplitter-1.0.0.js" />
+    <Content Include="Scripts\jasmine-1.3.1\jasmine-html.js" />
+    <Content Include="Scripts\jasmine-1.3.1\jasmine.css" />
+    <Content Include="Scripts\jasmine-1.3.1\jasmine.js" />
+    <Content Include="Scripts\modPerformance.js" />
     <Content Include="Scripts\modRegexHistory.js" />
     <Content Include="Scripts\dgBlocks-1.0.2.js" />
     <Content Include="Scripts\dgDocs-0.0.3.js" />
-    <Content Include="Scripts\dgEventManager-0.9.2.js" />
     <Content Include="Scripts\dgSelectDialog-0.0.2.js" />
     <Content Include="Scripts\dgStorage-1.0.2.js" />
     <Content Include="Scripts\dgTextRowColFinder-1.0.1.js" />
@@ -174,7 +179,7 @@
     <Content Include="Scripts\modCurrentSyntax.js" />
     <Content Include="Scripts\modStringSplit.js" />
     <Content Include="Scripts\modFindAndReplace.js" />
-    <Content Include="Scripts\jquery-ui-1.10.2.custom.js" />
+    <Content Include="Scripts\jquery-ui-1.10.3.custom.js" />
     <Content Include="Scripts\modMapVisualizer.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\reyParser.js" />
@@ -191,7 +196,10 @@
     <Content Include="Scripts\xregexp\addons\unicode\unicode-scripts.js" />
     <Content Include="Scripts\xregexp\xregexp.js" />
     <Content Include="Scripts\_references.js" />
-    <Content Include="Web.config" />
+    <Content Include="tests.html" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\SessionController.cs" />
@@ -216,6 +224,7 @@
     </Content>
     <None Include="Properties\PublishProfiles\rey.gimenez.biz.pubxml" />
     <Content Include="Scripts\dgSimpleOption-1.0.0.js" />
+    <Content Include="Scripts\jasmine-1.3.1\MIT.LICENSE" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

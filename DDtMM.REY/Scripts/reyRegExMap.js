@@ -124,6 +124,7 @@ var reyRegExMap = (function () {
 
 
         var reGroupInfo = reyGroupInfo.groupAllRegex(reText, reOptions);
+
         reText = reGroupInfo.createRegEx();
         re = XRegExp(reText, reOptions);
 
@@ -136,7 +137,7 @@ var reyRegExMap = (function () {
             rootCapture.startIndex = rootCapture.matchStartIndex = match.index;
             rootCapture.endIndex = rootCapture.matchEndIndex = match.index + match[0].length;
             rootCapture.setLineIndices();
-            
+
             addCaptures(match, reGroupInfo, rootCapture);
 
             // increment last index if we matched an empty string (like a word boundary).
@@ -149,7 +150,7 @@ var reyRegExMap = (function () {
             //while (currentCapture != null) {
             //    currentCapture = currentCapture.parent;
             //}
-
+            
             matchMap.push(rootCapture);
         }
 
@@ -161,14 +162,18 @@ var reyRegExMap = (function () {
     // adds captures, going in reverse order for instances like (.)* 
     function addCaptures(match, parentGroupInfo, parentCapture) {
         var groupInfo, indexOf, currentCapture, text;
+
         for (var i = parentGroupInfo.children.length - 1; i >= 0; i--) {
             groupInfo = parentGroupInfo.children[i];
             text = match[groupInfo.internalGroupId];
+
             if (text) {
                 indexOf = parentCapture.unMatchedTextFromEnd().lastIndexOf(text);
                 currentCapture = new CaptureInfo(text, groupInfo.groupId, groupInfo.label, parentCapture, indexOf);
                 currentCapture.internalGroupIndex = i;
+
                 addCaptures(match, groupInfo, currentCapture);
+
             }
         }
     }

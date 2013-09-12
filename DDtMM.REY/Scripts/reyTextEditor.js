@@ -1,4 +1,4 @@
-﻿var reyTextEditor = function (replaceDivId, name, tokenHoverCallback, theme) {
+﻿var reyTextEditor = function (replaceDivId, name, theme) {
     this.editor = null;
     this.updateDelay = 100;
     this.name = name;
@@ -7,38 +7,39 @@
     // private variables
     this._timeoutId = -1;
     this._removableMarkers = [];
-    this.init(replaceDivId, tokenHoverCallback, theme);
+    this.init(replaceDivId, theme);
 };
 (function () {
-    this.init = function (replaceDivId, tokenHoverCallback, theme) {
+    this.init = function (replaceDivId, theme) {
         var my = this;
+        
+        my.editor = ace.edit(replaceDivId);
+        my.editor.setTheme((theme || "ace/theme/monokai"));
+        my.editor.setShowPrintMargin(false);
+        my.editor.setHighlightActiveLine(false);
 
-        this.editor = ace.edit(replaceDivId);
-        this.editor.setTheme((theme || "ace/theme/monokai"));
-        this.editor.setShowPrintMargin(false);
-        this.editor.setHighlightActiveLine(false);
-
-        if (tokenHoverCallback != null) {
-            $('#' + replaceDivId).on('mousemove', function (ev) {
-                //var pos = my.editor.renderer.pixelToScreenCoordinates(ev.clientX, ev.clientY);
-                var pos = my.editor.renderer.screenToTextCoordinates(ev.clientX, ev.clientY);
-                tokenHoverCallback(my.editor.getSession().getTokenAt(pos.row, pos.column));
+        $('#' + replaceDivId).on('mousemove', function (ev) {
+            var pos = my.editor.renderer.screenToTextCoordinates(ev.clientX, ev.clientY);
+            delayedExec.start(function () {
+                $(my).trigger('tokenhover', my.editor.session.getTokenAt(pos.row, pos.column))
+            }, 100, my.name + 'tokenhover');
             });
-            $('#' + replaceDivId).on('mouseout', function (ev) {
-                tokenHoverCallback(null);
-            });
-        }
+        $('#' + replaceDivId).on('mouseout', function (ev) {
+            delayedExec.start(function () {
+                $(my).trigger('tokenhover', null)
+            }, 100, my.name + 'tokenhover');
+        });
 
-        var session = this.editor.getSession();
-        session.setUseWrapMode(true);
-        session.setUseSoftTabs(false);
+
+        my.editor.session.setUseWrapMode(true);
+        my.editor.session.setUseSoftTabs(false);
 
         this.editor.on('change', function (data) {
-            eventManager.trigger(my, 'change', arguments);
+            $(my).trigger('change', arguments);
             if (my.updateDelay > 0) {
                 if (!my.changing) {
                     my.changing = true;
-                    eventManager.trigger(my, 'changestart', arguments);
+                    $(my).trigger('changestart', arguments);
                     for (var i = 0, marker; (marker = my._removableMarkers[i]) !== undefined; i++) {
                         my.editor.session.removeMarker(marker.id, false);
                         marker.isAdded = false;
@@ -49,11 +50,11 @@
                 clearTimeout(my._timeoutId);
                 my._timeoutId = setTimeout(function () {
                     my.changing = false;
-                    eventManager.trigger(my, 'changecomplete', arguments);
+                    $(my).trigger('changecomplete', arguments);
                     my.refreshMarkers();
                 }, my.updateDelay);
             } else {
-                eventManager.trigger(my, 'changecomplete', arguments);
+                $(my).trigger('changecomplete', arguments);
             }
         });
 
@@ -70,18 +71,14 @@
 
     // gets text from editor
     this.getText = function () {
-        return this.editor.getSession().getValue();
+        return this.editor.session.getValue();
     };
 
     // sets text on editor
     this.setText = function (value) {
-        this.editor.getSession().setValue(value);
+        this.editor.session.setValue(value);
     };
 
-    this.on = function (event, callback) {
-        eventManager.subscribe(this, event, callback)
-
-    };
 
     this.highlightRange = function (startLine, startCol, endLine, endCol, highlightClass) {
         var Range = require("ace/range").Range;
@@ -95,7 +92,7 @@
 
     this.removeHighlight = function (highlightID) {
         if (highlightID == null) highlightID = this._lastHighlightID;
-        this.editor.getSession().removeMarker(highlightID);
+        this.editor.session.removeMarker(highlightID);
     }
 
 
@@ -127,16 +124,16 @@
             switch (name) {
                 case 'readOnly': return this.editor.getReadOnly();
                 case 'theme': return this.editor.getTheme();
-                case 'mode': return this.editor.getSession().getMode();
-                case 'rowTokenizer': return this.editor.getSession().bgTokenizer.$tokenizeRow;
+                case 'mode': return this.editor.session.getMode();
+                case 'rowTokenizer': return this.editor.session.bgTokenizer.$tokenizeRow;
             }
         }
         else {
             switch (name) {
                 case 'readOnly': this.editor.setReadOnly(value); break;
                 case 'theme': this.editor.setTheme(value); break;
-                case 'mode': this.editor.getSession().setMode(value); break;
-                case 'rowTokenizer': this.editor.getSession().bgTokenizer.$tokenizeRow = value; break;
+                case 'mode': this.editor.session.setMode(value); break;
+                case 'rowTokenizer': this.editor.session.bgTokenizer.$tokenizeRow = value; break;
             }
         }
     }

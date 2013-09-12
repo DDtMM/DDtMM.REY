@@ -343,7 +343,8 @@ var reyRegEx = (function ($) {
 
 
 
-    function onPatternTokenHover(token) {
+    function onPatternTokenHover(ev, token) {
+ 
         if (token == null) showPatternEditorMessage('');
         else {
             if (token.parserToken != null) {
@@ -387,7 +388,7 @@ var reyRegEx = (function ($) {
         if (reOptions !== undefined) my.reOptions = reOptions;
         my.reOptions = reOptions;
         my.reText = reText;
-        my.trigger('reUpdated', { reText: my.reText, reOptions: my.reOptions });
+        $(my).trigger('reUpdated', { reText: my.reText, reOptions: my.reOptions });
 
         onInputsChanged();
     }
@@ -426,7 +427,7 @@ var reyRegEx = (function ($) {
         if (!reyRegExMap.mapsAreEqual(newMap, this.matchMap)) {
             my.matchMap = newMap;
             targetEditor.refreshMarkers();
-            my.trigger('mapUpdated', newMap);
+            $(my).trigger('mapUpdated', newMap);
         }
     }
 
@@ -446,13 +447,14 @@ var reyRegEx = (function ($) {
         targetEditor = new reyTextEditor("targetEditor", "targetEditor");
         targetEditor.addMarker(new matchHighligher(targetEditor), true);
         targetEditor.updateDelay = 1000;
-        targetEditor.on('changecomplete', onInputsChanged);
+        $(targetEditor).on('changecomplete', onInputsChanged);
 
-        patternEditor = new reyTextEditor('patternEditor', 'patternEditor', onPatternTokenHover);
+        patternEditor = new reyTextEditor('patternEditor', 'patternEditor');
         patternEditor.updateDelay = 1000;
         patternEditor.option('rowTokenizer', tokenizePatternRow);
-        patternEditor.on('changecomplete', patternEditorTextChanged);
-        patternEditor.on('change', reTextChanging);
+        $(patternEditor).on('tokenhover', onPatternTokenHover);
+        $(patternEditor).on('changecomplete', patternEditorTextChanged);
+        $(patternEditor).on('change', reTextChanging);
 
         $('#loadUrlButton').selectDialog({
             dialogOk: function (ev, data) { loadUrl(data.value); }
@@ -519,8 +521,6 @@ var reyRegEx = (function ($) {
         getTargetEditor: function () { return targetEditor; },
         getPatternEditor: function () { return patternEditor; },
         toString: function() { return 'reyRegEx'; },
-        on: function (event, callback) { eventManager.subscribe(my, event, callback); },
-        trigger: function (event, data) { eventManager.trigger(my, event, data); },
         init: init
     };
 

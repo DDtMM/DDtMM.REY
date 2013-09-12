@@ -35,23 +35,15 @@ namespace DDtMM.REY.Data
         {
             MongoDatabase db = Connect();
             MongoCollection sequenceid = db.GetCollection("sequenceid");
+            
+            FindAndModifyResult result = sequenceid.FindAndModify(
+                Query.EQ("_id", collection),
+                SortBy.Null,
+                Update.Inc("nextid", 1));
 
-            try
+            if (result.Ok && result.ModifiedDocument != null)
             {
-                FindAndModifyResult result = sequenceid.FindAndModify(
-                    Query.EQ("_id", collection),
-                    SortBy.Null,
-                    Update.Inc("nextid", 1));
-
-                if (result.Ok && result.ModifiedDocument != null)
-                {
-                    return result.ModifiedDocument["nextid"].AsInt32;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
+                return result.ModifiedDocument["nextid"].AsInt32;
             }
 
             return -1;
@@ -61,13 +53,13 @@ namespace DDtMM.REY.Data
         public DbResult<SessionInfo> SaveSession(SessionInfo session)
         {
             MongoDatabase db = Connect();
-            
-            if (String.IsNullOrEmpty(session.ID))
-            {
-                session.ID = WebID.WebIDFromInt(GeNextSequenceID("session"));
-            }
             try
             {
+                if (String.IsNullOrEmpty(session.ID))
+                {
+                    session.ID = WebID.WebIDFromInt(GeNextSequenceID("session"));
+                }
+            
                 session.Updated = DateTime.Now;
                 var result = db.GetCollection("session").Save(session);
                 if (result.Ok) return DbResult<SessionInfo>.ValidResult(session);

@@ -17,7 +17,7 @@
 
  
     function init($elem) {
-        EVMGR(this).on("valueChanged", onValueChanged);
+        $(this).on("valueChanged", onValueChanged);
 
         $elem.append([
             $('<div id="replaceEditPanel" class="panel">\
@@ -57,7 +57,7 @@
     }
 
 
-    function onValueChanged(data, event) {
+    function onValueChanged(event, data) {
         // in text or function updates I check to see if the replaceEditor matches the text.
         // this is riggish.
 
@@ -131,15 +131,15 @@
     }
 
     function start() {
-        reyRegEx.on('mapUpdated', update);
-        replaceEditor.on('changecomplete', replaceTextChanged);
+        $(reyRegEx).on('mapUpdated', update);
+        $(replaceEditor).on('changecomplete', replaceTextChanged);
         onModeChanged();
     }
 
     function stop() {
         storeTextValue();
-        eventManager.unsubscribe(reyRegEx, 'mapUpdated', update);
-        eventManager.unsubscribe(replaceEditor, 'changecomplete', update);
+        $(reyRegEx).off('mapUpdated', update);
+        $(replaceEditor).off('changecomplete', update);
     }
 
     var my = {

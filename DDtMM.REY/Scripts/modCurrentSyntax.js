@@ -37,11 +37,11 @@
             my.val('viewOption', $(data.selected).data('opt'), 'menu');
         });
 
-        EVMGR(this).on("valueChanged", onValueChanged);
+        $(this).on("valueChanged", onValueChanged);
         my.val('viewOption', (my.val('viewOption') || 'normal'))
     }
 
-    function onValueChanged(data, event) {
+    function onValueChanged(event, data) {
         switch (data.name) {
             case 'viewOption':
                 if (data.source != 'menu') {
@@ -121,12 +121,12 @@
     }
 
     function start() {
-        reyRegEx.on('reUpdated', update);
+        $(reyRegEx).on('reUpdated', update);
         update();
     }
 
     function stop() {
-        eventManager.unsubscribe(reyRegEx, 'reUpdated', update);
+        $(reyRegEx).off('reUpdated', update);
     }
 
     var my = {

@@ -1,0 +1,107 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="Scripts/jasmine-1.3.1/jasmine.js"></script>
+    <script src="Scripts/jasmine-1.3.1/jasmine-html.js"></script>
+    <link href="Scripts/jasmine-1.3.1/jasmine.css" rel="stylesheet" />
+<script src="/Scripts/jquery-1.9.1.js"></script>
+<script src="/Scripts/jquery-ui-1.10.3.custom.js"></script>
+<script src="/Scripts/jquery.ui.touch-punch.js"></script>
+<script src="/Scripts/modernizr-2.6.2.js"></script>
+<script src="/Scripts/dgBench-1.0.0.js"></script>
+<script src="/Scripts/dgSimpleOption-1.0.0.js"></script>
+<script src="/Scripts/dgTextRowColFinder-1.0.1.js"></script>
+<script src="/Scripts/dgBlocks-1.0.2.js"></script>
+<script src="/Scripts/dgDocs-0.0.3.js"></script>
+<script src="/Scripts/dgDelayedExecution-1.0.0.js"></script>
+<script src="/Scripts/dgSelectDialog-0.0.2.js"></script>
+<script src="/Scripts/dgSimpleTree-1.0.5.js"></script>
+<script src="/Scripts/dgStorage-1.0.2.js"></script>
+<script src="/Scripts/dgLimitedStack-1.0.1.js"></script>
+<script src="/Scripts/dgSplitter-1.0.0.js"></script>
+<script src="/Scripts/ace/ace.js"></script>
+<script src="/Scripts/xregexp/xregexp.js"></script>
+<script src="/Scripts/xregexp/addons/unicode/unicode-base.js"></script>
+<script src="/Scripts/xregexp/addons/unicode/unicode-blocks.js"></script>
+<script src="/Scripts/xregexp/addons/unicode/unicode-categories.js"></script>
+<script src="/Scripts/xregexp/addons/unicode/unicode-properties.js"></script>
+<script src="/Scripts/xregexp/addons/unicode/unicode-scripts.js"></script>
+<script src="/Scripts/reyTextEditor.js"></script>
+<script src="/Scripts/reyParser.js"></script>
+<script src="/Scripts/reyRegExMap.js"></script>
+<script src="/Scripts/reyModules.js"></script>
+<script src="/Scripts/reyGroupInfo.js"></script>
+<script src="/Scripts/reyFormatting.js"></script>
+
+</head>
+<body>
+    <script>
+        (function () {
+            var jasmineEnv = jasmine.getEnv();
+            jasmineEnv.updateInterval = 1000;
+
+            var htmlReporter = new jasmine.HtmlReporter();
+
+            jasmineEnv.addReporter(htmlReporter);
+
+            jasmineEnv.specFilter = function (spec) {
+                return htmlReporter.specFilter(spec);
+            };
+
+            var currentWindowOnload = window.onload;
+
+            window.onload = function () {
+                if (currentWindowOnload) {
+                    currentWindowOnload();
+                }
+                execJasmine();
+            };
+
+            function execJasmine() {
+                createTests();
+                jasmineEnv.execute();
+            }
+
+            function createTests() {
+                describe("reyRegExMap matches", function () {
+                    beforeEach(function () {
+                         
+                    });
+
+
+                    it("/a/i, should have one match on abcedfg", function () {
+                        var map = reyRegExMap.updateMap("abcdefg", "a", "i");
+                        
+                        expect(map.length).toEqual(1);
+
+                    });
+
+                });
+                describe("reyGroupInfo should ", function () {
+                    beforeEach(function () {
+
+                    });
+
+
+                    it("successfully parses simple parenthesis", function () {
+                        var grouped = reyGroupInfo.groupAllRegex("x(as(dqwewq)e)", "");
+                    });
+
+                    it("successfully parses parenthesis with escaped parenthesis", function () {
+                        var grouped = reyGroupInfo.groupAllRegex("a(aa(aaa\\(aa)a)()", "");
+                    });
+
+                    it("successfully parses parenthesis, escaped parenthesis and sets with parenthesis", function () {
+                        var grouped = reyGroupInfo.groupAllRegex("a(aa(aa[aaa\\[(aaa]\\([a(aqwe)])a)()", "");
+                    });
+                });
+            }
+        })();
+
+
+
+
+    </script>
+</body>
+</html>

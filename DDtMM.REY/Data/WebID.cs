@@ -8,6 +8,14 @@ namespace DDtMM.REY.Data
 {
     public static class WebID
     {
+        // valid characters used in constructing ids
+        private static readonly List<char> CHARS;
+
+        static WebID()
+        {
+            CHARS = "abcdefghijklmnopqrstuvwxyz0123456789".ToCharArray().ToList();
+        }
+
         // moves bits around so that the actual value is hidden.
         private static int ObfucateBits(int num)
         {
@@ -39,12 +47,10 @@ namespace DDtMM.REY.Data
         // get int value from webId.
         public static int IntFromWebID(string webId)
         {
-            string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-
             int id = 0;
             for (int i = 0; i < 6; i++)
             {
-                id += chars.IndexOf(webId[5 - i]) * (int)Math.Pow(36, i);
+                id += CHARS.IndexOf(webId[5 - i]) * (int)Math.Pow(36, i);
 
             }
 
@@ -54,14 +60,12 @@ namespace DDtMM.REY.Data
         // creates a 6 char string web id.
         public static string WebIDFromInt(int id)
         {
-            string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-
             StringBuilder output = new StringBuilder("aaaaaa");
             id = ObfucateBits(id);
 
             for (int i = 5; i >= 0; i--)
             {
-                output[i] = chars[id % 36];
+                output[i] = CHARS[id % 36];
                 id = id / 36;
             }
             return output.ToString();

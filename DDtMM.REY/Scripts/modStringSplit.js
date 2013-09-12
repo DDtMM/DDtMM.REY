@@ -19,12 +19,12 @@
     }
 
     function start() {
-        reyRegEx.on('mapUpdated', update);
+        $(reyRegEx).on('mapUpdated', update);
         update();
     }
 
     function stop() {
-        eventManager.unsubscribe(reyRegEx, 'mapUpdated', update);
+        $(reyRegEx).off('mapUpdated', update);
     }
 
     var my = {

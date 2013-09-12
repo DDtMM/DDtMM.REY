@@ -4,7 +4,8 @@
 
 
     function init() {
-        var baseModules = [modCurrentSyntax, modFindAndReplace, modMapVisualizer, modStringSplit, modRegexHistory];
+        var baseModules = [modCurrentSyntax, modFindAndReplace, modMapVisualizer,
+            modStringSplit, modRegexHistory, modPerformance];
         for (var i = 0, il = baseModules.length; i < il; i++) {
             addModule(baseModules[i]);
         }
@@ -25,7 +26,7 @@
             if (newValue === undefined) return this._values[name];
 
             this._values[name] = newValue;
-            EVMGR(module).trigger("valueChanged", { name: name, value: newValue, source: source });
+            $(module).trigger("valueChanged", { name: name, value: newValue, source: source });
             return newValue;
         }
 

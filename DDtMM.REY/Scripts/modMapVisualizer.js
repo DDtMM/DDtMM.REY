@@ -27,6 +27,7 @@
         }
 
         $moduleMenu.simpleOption({ mode: 'children' }).on('selected', function (ev, data) {
+
             my.val('viewOption', $(data.selected).data('opt'), 'menu');
         });
 
@@ -70,12 +71,12 @@
             }
         });
 
-        EVMGR(this).on("valueChanged", onValueChanged);
+        $(this).on("valueChanged", onValueChanged);
         my.val('viewOption', (my.val('viewOption') || 'tree'))
     }
 
 
-    function onValueChanged(data, event) {
+    function onValueChanged(event, data) {
         switch (data.name) {
             case 'viewOption':
                 if (data.source != 'menu') {
@@ -140,12 +141,12 @@
         return str;
     }
     function start() {
-        reyRegEx.on('mapUpdated', update);
+        $(reyRegEx).on('mapUpdated', update);
         update();
     }
 
     function stop() {
-        eventManager.unsubscribe(reyRegEx, 'mapUpdated', update);
+        $(reyRegEx).off(reyRegEx, 'mapUpdated', update);
     }
 
     var my = {
