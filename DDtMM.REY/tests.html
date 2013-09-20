@@ -78,22 +78,25 @@
                     });
 
                 });
-                describe("reyGroupInfo should ", function () {
+                describe("reyGroupInfo regex parsing ", function () {
                     beforeEach(function () {
 
                     });
 
 
-                    it("successfully parses simple parenthesis", function () {
+                    it("parse simple parenthesis", function () {
                         var grouped = reyGroupInfo.groupAllRegex("x(as(dqwewq)e)", "");
+                        expect(grouped.createRegEx()).toEqual("(x)((as)(dqwewq)(e))");
                     });
 
-                    it("successfully parses parenthesis with escaped parenthesis", function () {
+                    it("parse parenthesis with escaped parenthesis", function () {
                         var grouped = reyGroupInfo.groupAllRegex("a(aa(aaa\\(aa)a)()", "");
+                        expect(grouped.createRegEx()).toEqual("(a)((aa)(aaa\\(aa)(a))()");
                     });
 
-                    it("successfully parses parenthesis, escaped parenthesis and sets with parenthesis", function () {
+                    it("parses parenthesis, escaped parenthesis and sets with parenthesis", function () {
                         var grouped = reyGroupInfo.groupAllRegex("a(aa(aa[aaa\\[(aaa]\\([a(aqwe)])a)()", "");
+                        expect(grouped.createRegEx()).toEqual("(a)((aa)(aa[aaa\[(aaa]\\([a(aqwe)])a)()");
                     });
                 });
             }

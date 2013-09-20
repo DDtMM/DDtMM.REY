@@ -71,7 +71,7 @@
         $resultsPanel.empty();
     }
 
-    function onValueChanged(name, value) {
+    function onValueChanged(event, data) {
 
     }
 

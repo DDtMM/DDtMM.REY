@@ -33,7 +33,7 @@
     }
 
     function init($parentElement) {
-        $(reyRegEx).on('reUpdated', function (data) {
+        $(reyRegEx).on('reUpdated', function (event, data) {
 
             var addData = (history.isEmpty() || history.peek().reText != data.reText);
 
@@ -94,24 +94,24 @@
         });
     }
 
-    function onValueChanged(name, value) {
+    function onValueChanged(event, data) {
         // in text or function updates I check to see if the replaceEditor matches the text.
         // this is riggish.
-        switch (name) {
+        switch (data.name) {
             case 'history':
-                if (val('mode') == 'replace-function' && value != replaceEditor.getText()) {
+                if (val('mode') == 'replace-function' && data.value != replaceEditor.getText()) {
                     replaceEditor.setText(value);
                 }
                 update();
                 break;
             case 'text':
-                if (val('mode') == 'replace-text' && value != replaceEditor.getText()) {
+                if (val('mode') == 'replace-text' && data.value != replaceEditor.getText()) {
                     replaceEditor.setText(value);
                 }
                 update();
                 break;
             case 'mode':
-                $replaceWithSelect.val(value);
+                $replaceWithSelect.val(data.value);
                 onModeChanged();
                 break;
         }

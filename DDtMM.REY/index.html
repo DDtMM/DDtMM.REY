@@ -18,7 +18,7 @@
         </div>
         <div class="iconButton" id="helpButton" style="vertical-align:top" >Help</div>
     </div>
-    <span style="font-size:.625em; font-style:italic; float:right">(v0.52.01 2013-09-12)&nbsp;</span>
+    <span style="font-size:.625em; font-style:italic; float:right">(v0.52.02 2013-09-20)&nbsp;</span>
 </header>
 <div id="RegexEditor" class="fillHeight">
 <div id="inputPanel" class="panel">
@@ -160,7 +160,7 @@
     </div>
     <div id="tools" title="Tools">
         <h1>Tools</h1>
-        <p>Currently there are four tools available on the right panel of the application, but there is certainly
+        <p>Currently there are five tools available on the right panel of the application, but there is certainly
             room for more.
         </p>
         <h2>Current Syntax</h2>
@@ -188,6 +188,19 @@ function viewCaptures () {
         <h2>String Split</h2>
         <p>Breaks the text up into an array, using the matched text as a delimiter.  In JavaScript any
             text matched in a group is included in the array.
+        </p>
+        <h2>Performance</h2>
+        <p>Runs a performance test of your regular expression against the current text.
+        </p>
+    </div>
+    <div id="performance" title="Performance" data-parent="tools">
+        <h1>Performance Tool</h1>
+        <p>The Performance Tool runs a test of your regular expression's performance against
+            your current target text.
+        </p>
+        <p>Each time you run a test, the result is added to a list of results so that you can 
+            evaluate how your changes effect performance.  The higer the number, the better
+            the performance of the regular expression.
         </p>
     </div>
     <div id="querystring" title="Querystring Parameters">
@@ -328,11 +341,11 @@ function viewCaptures () {
 <script src="/Scripts/dgBench-1.0.0.js"></script>
 <script src="/Scripts/dgSimpleOption-1.0.0.js"></script>
 <script src="/Scripts/dgTextRowColFinder-1.0.1.js"></script>
-<script src="/Scripts/dgBlocks-1.0.2.js"></script>
-<script src="/Scripts/dgDocs-0.0.3.js"></script>
+<script src="/Scripts/dgBlocks-1.0.3.js"></script>
+<script src="/Scripts/dgDocs-0.1.0.js"></script>
 <script src="/Scripts/dgDelayedExecution-1.0.0.js"></script>
 <script src="/Scripts/dgSelectDialog-0.0.2.js"></script>
-<script src="/Scripts/dgSimpleTree-1.0.5.js"></script>
+<script src="/Scripts/dgSimpleTree-1.0.6.js"></script>
 <script src="/Scripts/dgStorage-1.0.2.js"></script>
 <script src="/Scripts/dgLimitedStack-1.0.1.js"></script>
 <script src="/Scripts/dgSplitter-1.0.0.js"></script>

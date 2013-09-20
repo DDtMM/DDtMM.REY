@@ -79,7 +79,7 @@ Some useful functions for dealing with block objects
             props, newProps, $elem;
 
         // add children of any parent resized
-  
+
         for (var i = 0, il = resizeParents.length; i < il; i++) {
             $elem = resizeParents[i];
             if ($elem.filter(':visible').length) {
@@ -94,8 +94,8 @@ Some useful functions for dealing with block objects
                 }
             }
         }
- 
-    
+
+
         for (i = 0, il = heightElements.length; i < il; i++) {
             $elem = heightElements[i];
 
@@ -108,7 +108,7 @@ Some useful functions for dealing with block objects
                 }
             }
         }
-  
+
         for (i in updateElements) fillHeight(updateElements[i]);
     }
 
@@ -120,10 +120,10 @@ Some useful functions for dealing with block objects
         var usedHeight = 0,
             $parent = $elem.parent(),
             $sibling;
- 
+
         $parent.children().not($elem).each(function () {
             $sibling = $(this);
- 
+
             if (!$sibling.css('position').match(ignorePositionRe) &&
                 !$sibling.css('display').match(ignoreDisplayRe)) {
                 usedHeight += Math.ceil($sibling.outerHeight(true));
@@ -134,18 +134,20 @@ Some useful functions for dealing with block objects
     }
 
 
-        
+
 
     $.fn.blockUtil = function (method) {
         var jq = this;
-      
-        function moveRightOf ($elem, offsetLeft) {
+
+        function moveRightOf(elem, offsetLeft) {
+            var $elem = elem;
             var pos = $elem.offset();
             pos.left += $elem.width() + (offsetLeft || 0);
 
             return jq.each(function () { $(this).offset(pos); });
         }
-        function moveUnder($elem, offsetTop) {
+        function moveUnder(elem, offsetTop) {
+            var $elem = elem;
             var pos = $elem.offset();
             pos.top += $elem.height() + (offsetTop || 0);
 

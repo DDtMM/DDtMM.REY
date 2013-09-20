@@ -14,7 +14,6 @@ $.widget("dg.docs", {
     _create: function () {
 
         this.isOpen = false;
-        this.docs = {};
         this._$currentPage = null;
 
         var $content,
@@ -30,21 +29,21 @@ $.widget("dg.docs", {
         ]);
 
         $nav.simpleTree({
-            click: function (ev, data) { my._displayContent(data.node.id); }
+            click: function (ev, data) { my.displayContent(data.node.id); }
         });
 
         // reorganize elements
         this.element.after($displayElement);
         $content.append(this.element);
 
-        if ((docPages = this.element.children()).length) {
-            for (var i = 0, il = docPages.length; i < il; i++) {
-                page = docPages[i];
-                this.docs[page.id] = { id: page.id, value: page.title };
-                $(page).hide();
-            }
-        }
-        $nav.simpleTree('addNodes', this.docs);
+        this.element.children().each(function () {
+            $page = $(this);
+            $page.hide(0);
+            $nav.simpleTree('addNode', {
+                id: $page.prop('id'),
+                value: $page.attr('title'),
+            }, $page.attr('data-parent'));
+        });
         
         $displayElement.dialog({
             dialogClass: 'dg-docs-dialog',
@@ -61,7 +60,7 @@ $.widget("dg.docs", {
 
         this._$content = $content;
         this._$displayElement = $displayElement;
-        this._displayContent(this.element.children().first().attr('id'));
+        this.displayContent(this.element.children().first());
     },
     
     _praseSize: function(sizeStr, windowDimensionValue) {
@@ -74,21 +73,43 @@ $.widget("dg.docs", {
     show: function () {
         if (!this.isOpen) {
             //this._$displayElement.dialog('option', { height: $(window).height() / 1.2 });
-            if (!this._$currentPage && this.docs.length > 0) this._displayContent(this.docs[0].id);
+            if (!this._$currentPage) this.displayContent(this.element.first());
             this.isOpen = true;
             this._$displayElement.dialog('open');
         }
     },
 
-    _displayContent: function (id) {
-
+    // content can be element or id
+    displayContent: function (content) {
         if (this._$currentPage) this._$currentPage.hide();
-        this._$currentPage = this.element.find($('#' + id));
+        this._$currentPage = (jQuery.type(content) === 'string') ?
+            this.element.find($('#' + content)) : $(content);
+
         if (!this._$currentPage.data('dg.docs.linksProcessed')) this._processLinks(this._$currentPage);
         
+        var title = (this.options.title || this.element.attr('title') || '')
+        if (title) title += ': ';
+        
+        var pathTitles = []
+        $.each(this.getContentPath(this._$currentPage), function () {
+            pathTitles.push(this.attr('title'));
+        });
+        title += pathTitles.join(" > ");
+
         this._$currentPage.show();
-        this._$displayElement.dialog('option', 'title', 
-            (this.options.title || this.element.attr('title') || 'Documentation') + ': ' + $('#' + id).attr('title'));
+        this._$displayElement.dialog('option', 'title', title);
+    },
+
+    // creates the path to the $elem
+    getContentPath: function($elem) {
+        var path = [];
+        var parentID;
+        while ($elem && $elem.length > 0) {
+            path.unshift($elem); //add to the beginning
+            if ((parentID = $elem.attr('data-parent'))) $elem = this.element.children('#' + parentID);
+            else break;
+        }
+        return path;
     },
 
     // modifies links within contents to support various functions
@@ -103,10 +124,10 @@ $.widget("dg.docs", {
             if ((hashIndex = href.indexOf('#!')) == 0) {
                 // link to another document
 
-                if (!this.innerHTML) this.innerHTML = my.docs[href.substr(2)].value;
+                if (!this.innerHTML) this.innerHTML = my.element.children('#' + href.substr(2)).attr('title');
                 $(this).click(function (ev) {
                     ev.preventDefault();
-                    my._displayContent(this.getAttribute('href').substr(2));
+                    my.displayContent(this.getAttribute('href').substr(2));
                 });
             } else if ((hashIndex = href.indexOf('#')) == 0) {
    

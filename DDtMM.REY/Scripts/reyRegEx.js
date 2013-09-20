@@ -484,7 +484,15 @@ var reyRegEx = (function ($) {
             var $menu = $(this).parent();
             var $itemsPanel = $menu.find('.menuItemsPanel');
             clearTimeout($menu.data('hide_menu_to_id'));
-            $itemsPanel.toggle(125);
+            $itemsPanel.toggle({
+                duration: 125,
+                complete: function() {
+                    $menu.one('mouseleave', function () {
+                        clearTimeout($menu.data('hide_menu_to_id'));
+                        $menu.find('.menuItemsPanel').hide(250);
+                    });
+                }
+            });
         });
         $('.menu').on('mousemove click', function () {
             var $menu = $(this);
@@ -492,11 +500,8 @@ var reyRegEx = (function ($) {
             $menu.data('hide_menu_to_id', setTimeout(function () {
                 $menu.find('.menuItemsPanel').hide(250);
             }, 5000));
-        }).on('mouseleave', function () {
-            var $menu = $(this);
-            clearTimeout($menu.data('hide_menu_to_id'));
-            $menu.find('.menuItemsPanel').hide(250);
         });
+
         $('.menuItemsPanel').children().on('click', function (ev) {
             if (!$(this).hasClass('disabled')) {
                 menuCommand(this.id, this);

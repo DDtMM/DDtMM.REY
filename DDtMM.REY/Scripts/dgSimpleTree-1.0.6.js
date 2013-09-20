@@ -201,10 +201,12 @@ $.widget("dg.simpleTree", {
         if (this._jQueryEmpty($ul))
             uiState.$ul = $ul = this._$listTemplate.clone().attr('data-tree-level', uiState.level);
 
+        $ul.empty();
+
         for (var nodeID in nodes) {
             $ul.append(this._renderNode(nodes[nodeID], uiState));
         }
-       
+        
         return $ul;
     },
 
