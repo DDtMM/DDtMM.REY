@@ -302,13 +302,15 @@ var reyRegEx = (function ($) {
         }
     };
 
-    function showPatternEditorMessage(text, error) {
-        if (error != null) {
-            if (error) $("#patternEditorMessage").addClass('errorMode');
+    // displays error message below patter.  Ommitting isError will only
+    // display a message if an error message is not being displayed currently.
+    function showPatternEditorMessage(text, isError) {
+        if (isError != null) {
+            if (isError) $("#patternEditorMessage").addClass('errorMode');
             else $("#patternEditorMessage").removeClass('errorMode');
         }
 
-        if (error != null || !$("#patternEditorMessage").hasClass('errorMode')) {
+        if (isError != null || !$("#patternEditorMessage").hasClass('errorMode')) {
             $("#patternEditorMessage").text(text || '');
         }
     };
@@ -419,7 +421,11 @@ var reyRegEx = (function ($) {
 
     // create a new instance of RegExp using currnet options and text.
     function createRe() {
-        return XRegExp(my.reText, my.reOptions);
+        try {
+            return XRegExp(my.reText, my.reOptions);
+        } catch (err) {
+            showPatternEditorMessage(err, true);
+        }
     }
 
     function onInputsChanged() {

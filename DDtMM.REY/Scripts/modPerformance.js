@@ -53,7 +53,7 @@
             delay: 100,
             maxSamplesExec: 10000,
             testFunc: function () {
-                re = XRegExp(reText, reOptions);
+                re = reyRegEx.createRe();
                 while ((match = re.exec(testText)) !== null) { ; }
             }
         });

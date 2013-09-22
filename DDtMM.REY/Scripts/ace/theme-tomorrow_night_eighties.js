@@ -68,6 +68,9 @@ background: rgb(102, 82, 0)\
 margin: -1px 0 0 -1px;\
 border: 1px solid #6A6A6A\
 }\
+.ace-tomorrow-night-bright .ace_stack {\
+background: rgb(66, 90, 44)\
+}\
 .ace-tomorrow-night-eighties .ace_marker-layer .ace_active-line {\
 background: #393939\
 }\
@@ -119,7 +122,7 @@ color: #6699CC\
 .ace-tomorrow-night-eighties .ace_support.ace_type {\
 color: #FFCC66\
 }\
-.ace-tomorrow-night-eighties .ace_markup.ace_heading,\
+.ace-tomorrow-night-eighties .ace_heading,\
 .ace-tomorrow-night-eighties .ace_string {\
 color: #99CC99\
 }\
@@ -131,9 +134,6 @@ color: #999999\
 .ace-tomorrow-night-eighties .ace_meta.ace_tag,\
 .ace-tomorrow-night-eighties .ace_variable {\
 color: #F2777A\
-}\
-.ace-tomorrow-night-eighties .ace_markup.ace_underline {\
-text-decoration: underline\
 }\
 .ace-tomorrow-night-eighties .ace_indent-guide {\
 background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAEklEQVQImWPQ09NrYAgMjP4PAAtGAwchHMyAAAAAAElFTkSuQmCC) right repeat-y\

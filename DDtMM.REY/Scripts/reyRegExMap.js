@@ -126,7 +126,11 @@ var reyRegExMap = (function () {
         var reGroupInfo = reyGroupInfo.groupAllRegex(reText, reOptions);
 
         reText = reGroupInfo.createRegEx();
-        re = XRegExp(reText, reOptions);
+        try {
+            re = XRegExp(reText, reOptions);
+        } catch (err) {
+            return matchMap;
+        }
 
         // if not global - only get one match
         if (!re.global) matchCounter = my.maxMatches - 1;

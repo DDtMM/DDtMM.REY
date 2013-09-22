@@ -325,7 +325,7 @@ var supportedModes = {
     Erlang:      ["erl|hrl"],
     EJS:         ["ejs"],
     Forth:       ["frt|fs|ldr"],
-    FreeMarker:  ["ftl"],
+    FTL:         ["ftl"],
     Glsl:        ["glsl|frag|vert"],
     golang:      ["go"],
     Groovy:      ["groovy"],
@@ -358,6 +358,7 @@ var supportedModes = {
     Markdown:    ["md|markdown"],
     MySQL:       ["mysql"],
     MUSHCode:    ["mc|mush"],
+    Nix:         ["nix"],
     ObjectiveC:  ["m|mm"],
     OCaml:       ["ml|mli"],
     Pascal:      ["pas|p"],
@@ -367,6 +368,7 @@ var supportedModes = {
     Powershell:  ["ps1"],
     Prolog:      ["plg|prolog"],
     Properties:  ["properties"],
+    Protobuf:    ["proto"],
     Python:      ["py"],
     R:           ["r"],
     RDoc:        ["Rd"],
@@ -403,7 +405,8 @@ var nameOverrides = {
     golang: "Go",
     C_Cpp: "C/C++",
     coffee: "CoffeeScript",
-    HTML_Ruby: "HTML (Ruby)"
+    HTML_Ruby: "HTML (Ruby)",
+    FTL: "FreeMarker"
 };
 var modesByName = {};
 for (var name in supportedModes) {
@@ -463,8 +466,8 @@ module.exports.themes = [
     "kr_theme",
     "merbivore",
     "merbivore_soft",
-    "monokai",
     "mono_industrial",
+    "monokai",
     "pastel_on_dark",
     "solarized_dark",
     "solarized_light",

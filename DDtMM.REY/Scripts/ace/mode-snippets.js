@@ -84,7 +84,7 @@ var SnippetGroupHighlightRules = function() {
 		{onMatch: function(value, state, stack) {
 			stack.splice(stack.length);
 			return this.tokenName;
-		}, tokenName: "text", regex: "^(?!\t)", next: "start"},
+		}, tokenName: "text", regex: "^(?!\t)", next: "start"}
 	])
 	
 };
@@ -103,9 +103,7 @@ var Mode = function() {
 oop.inherits(Mode, TextMode);
 
 (function() {
-    this.getNextLineIndent = function(state, line, tab) {
-        return this.$getIndent(line);
-    };
+    this.$indentWithTabs = true;
 }).call(Mode.prototype);
 exports.Mode = Mode;
 
