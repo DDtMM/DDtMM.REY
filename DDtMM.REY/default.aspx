@@ -23,7 +23,7 @@
         </div>
         <div class="iconButton" id="helpButton" style="vertical-align:top" >Help</div>
     </div>
-    <span style="font-size:.625em; font-style:italic; float:right">(v0.52.04 2013-09-23)&nbsp;</span>
+    <span style="font-size:.625em; font-style:italic; float:right">(v0.52.05 2013-09-23)&nbsp;</span>
 </header>
 <div id="RegexEditor" class="fillHeight">
 <div id="inputPanel" class="panel">

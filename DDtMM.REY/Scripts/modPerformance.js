@@ -58,10 +58,7 @@
                 maxTime: 1000,
                 delay: 100,
                 maxSamplesExec: 10000,
-                testFunc: function () {
-                    var re = reyRegEx.createRe();
-                    while ((match = re.exec(testText)) !== null) {; }
-                }
+                testFunc: testFunc
             });
         } catch (err) {
             showMessage('Can not test: Error with Regular Expression.');
