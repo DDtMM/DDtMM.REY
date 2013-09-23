@@ -46,17 +46,27 @@
         var reText = reyRegEx.reText;
         var reOptions = reyRegEx.reOptions;
         var testText = reyRegEx.getTargetEditor().getText();
+        var testFunc = function () {
+            var re = reyRegEx.createRe();
+            while ((match = re.exec(testText)) !== null) {; }
+        };
+        try {
+            testFunc();
+ 
+            dg.bench.startTest({
+                samples: 20,
+                maxTime: 1000,
+                delay: 100,
+                maxSamplesExec: 10000,
+                testFunc: function () {
+                    var re = reyRegEx.createRe();
+                    while ((match = re.exec(testText)) !== null) {; }
+                }
+            });
+        } catch (err) {
+            showMessage('Can not test: Error with Regular Expression.');
+        }
 
-        dg.bench.startTest({
-            samples: 20,
-            maxTime: 1000,
-            delay: 100,
-            maxSamplesExec: 10000,
-            testFunc: function () {
-                re = reyRegEx.createRe();
-                while ((match = re.exec(testText)) !== null) { ; }
-            }
-        });
     }
  
     function showMessage(msg) {
