@@ -8,16 +8,21 @@ using System.Web.Http;
 using System.Web.Routing;
 using System.Web.Configuration;
 using System.Configuration;
+using System.Web.Optimization;
+using System.Reflection;
+using System.Diagnostics;
 
 namespace DDtMM.REY
 {
     public class Global : System.Web.HttpApplication
     {
+        public static string Version { get; private set; }
 
         protected void Application_Start(object sender, EventArgs e)
         {
             // not working on hosting provider
             //EncryptConnString();
+            BundleConfig.RegisterBundles(BundleTable.Bundles);
 
             RouteTable.Routes.MapHttpRoute(
                 name: "DefaultApi",
@@ -31,6 +36,9 @@ namespace DDtMM.REY
                 routeTemplate: "s/{id}",
                 defaults: new { id = System.Web.Http.RouteParameter.Optional }
                 );
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            Version = FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion;
         }
 
         private void EncryptConnString()

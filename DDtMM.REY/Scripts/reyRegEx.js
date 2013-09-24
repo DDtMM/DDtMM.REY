@@ -541,6 +541,7 @@ var reyRegEx = (function ($) {
 
 
 jQuery(document).ready(function ($) {
+    ace.config.set("basePath", "/scripts/ace/");
     reyRegEx.init();
 });
 

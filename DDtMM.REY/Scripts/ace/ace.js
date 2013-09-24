@@ -4689,7 +4689,7 @@ oop.implement(exports, EventEmitter);
 exports.moduleUrl = function(name, component) {
     if (options.$moduleUrls[name])
         return options.$moduleUrls[name];
-
+    
     var parts = name.split("/");
     component = component || parts[parts.length - 2] || "";
     var sep = component == "snippets" ? "/" : "-";
@@ -4702,6 +4702,7 @@ exports.moduleUrl = function(name, component) {
     if ((!base || base == component) && parts.length > 1)
         base = parts[parts.length - 2];
     var path = options[component + "Path"];
+
     if (path == null) {
         path = options.basePath;
     } else if (sep == "/") {
@@ -4726,19 +4727,21 @@ exports.loadModule = function(moduleName, onLoad) {
 
     try {
         module = require(moduleName);
-    } catch (e) {};
+    } catch (e) { ; }
+
     if (module && !exports.$loading[moduleName])
         return onLoad && onLoad(module);
-
+    
     if (!exports.$loading[moduleName])
         exports.$loading[moduleName] = [];
 
     exports.$loading[moduleName].push(onLoad);
-
+    
     if (exports.$loading[moduleName].length > 1)
         return;
+    
+    var afterLoad = function () {
 
-    var afterLoad = function() {
         require([moduleName], function(module) {
             exports._emit("load.module", {name: moduleName, module: module});
             var listeners = exports.$loading[moduleName];
@@ -4751,6 +4754,7 @@ exports.loadModule = function(moduleName, onLoad) {
 
     if (!exports.get("packaged"))
         return afterLoad();
+
     net.loadScript(exports.moduleUrl(moduleName, moduleType), afterLoad);
 };
 exports.init = function() {

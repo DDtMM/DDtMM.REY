@@ -3,12 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>REY, a Regular Expression Editor</title>
-    <% #if DEBUG %>
-    <link href="/Content/pepper-grinder/jquery-ui-1.10.2.custom.css" rel="stylesheet" />
-    <link href="/Content/ReyRegEx.css" rel="stylesheet" />
-    <% #else %>
-    <link href="/Content/Minified.css" rel="stylesheet" />
-    <% #endif %>
+    <%: Styles.Render("~/Content/bundle") %>
+    <%: Styles.Render("~/Content/jquery-ui-theme/bundle") %>
 </head>
 <body>
 <header>
@@ -23,7 +19,7 @@
         </div>
         <div class="iconButton" id="helpButton" style="vertical-align:top" >Help</div>
     </div>
-    <span style="font-size:.625em; font-style:italic; float:right">(v0.52.05 2013-09-23)&nbsp;</span>
+    <span style="font-size:.625em; font-style:italic; float:right">(v<%=Global.Version%>)</span>
 </header>
 <div id="RegexEditor" class="fillHeight">
 <div id="inputPanel" class="panel">
@@ -339,45 +335,8 @@ function viewCaptures () {
     <img src="/images/loader3.gif" />
     <div id="loading-message">LOADING</div>
 </div>
-<% #if DEBUG %>
-    <script src="/Scripts/jquery-1.9.1.js"></script>
-    <script src="/Scripts/jquery-ui-1.10.3.custom.js"></script>
-    <script src="/Scripts/jquery.ui.touch-punch.js"></script>
-    <script src="/Scripts/modernizr-2.6.2.js"></script>
-    <script src="/Scripts/dgBench-1.0.0.js"></script>
-    <script src="/Scripts/dgSimpleOption-1.0.0.js"></script>
-    <script src="/Scripts/dgTextRowColFinder-1.0.1.js"></script>
-    <script src="/Scripts/dgBlocks-1.0.3.js"></script>
-    <script src="/Scripts/dgDocs-0.1.0.js"></script>
-    <script src="/Scripts/dgDelayedExecution-1.0.0.js"></script>
-    <script src="/Scripts/dgSelectDialog-0.0.2.js"></script>
-    <script src="/Scripts/dgSimpleTree-1.0.6.js"></script>
-    <script src="/Scripts/dgStorage-1.0.2.js"></script>
-    <script src="/Scripts/dgLimitedStack-1.0.1.js"></script>
-    <script src="/Scripts/dgSplitter-1.0.0.js"></script>
-    <script src="/Scripts/ace/ace.js"></script>
-    <script src="/Scripts/xregexp/xregexp.js"></script>
-    <script src="/Scripts/xregexp/addons/unicode/unicode-base.js"></script>
-    <script src="/Scripts/xregexp/addons/unicode/unicode-blocks.js"></script>
-    <script src="/Scripts/xregexp/addons/unicode/unicode-categories.js"></script>
-    <script src="/Scripts/xregexp/addons/unicode/unicode-properties.js"></script>
-    <script src="/Scripts/xregexp/addons/unicode/unicode-scripts.js"></script>
-    <script src="/Scripts/reyTextEditor.js"></script>
-    <script src="/Scripts/reyParser.js"></script>
-    <script src="/Scripts/reyRegExMap.js"></script>
-    <script src="/Scripts/reyModules.js"></script>
-    <script src="/Scripts/reyGroupInfo.js"></script>
-    <script src="/Scripts/reyFormatting.js"></script>
-    <script src="/Scripts/modMapVisualizer.js"></script>
-    <script src="/Scripts/modFindAndReplace.js"></script>
-    <script src="/Scripts/modStringSplit.js"></script>
-    <script src="/Scripts/modCurrentSyntax.js"></script>
-    <script src="/Scripts/modPerformance.js"></script>
-    <script src="/Scripts/modRegexHistory.js"></script>
-    <script src="/Scripts/reyRegEx.js" type="text/javascript" ></script>
-<% #else %>
-    <script src="/scripts/ace-min/ace.js"></script> 
-    <script src="/scripts/minified.js" type="text/javascript" ></script>
-<% #endif %>
+        <%: Scripts.Render("~/Scripts/bundle") %>
+        <%: Scripts.RenderFormat(@"<script src=""{0}"" data-ace-base=""/Scripts/ace-min/""></script>", "~/Scripts/ace/bundle") %>
+
 </body>
 </html>
