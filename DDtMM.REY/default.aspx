@@ -336,7 +336,7 @@ function viewCaptures () {
     <div id="loading-message">LOADING</div>
 </div>
         <%: Scripts.Render("~/Scripts/bundle") %>
-        <%: Scripts.RenderFormat(@"<script src=""{0}"" data-ace-base=""/Scripts/ace-min/""></script>", "~/Scripts/ace/bundle") %>
+        <%: Scripts.Render("~/Scripts/ace/bundle") %>
 
 </body>
 </html>

@@ -3,6 +3,7 @@ By: Daniel Gimenez
 License: Freeware
 Description:
 A stack with lmited size.  Loops around the stack
+Version 1.02
 ***/
 var LimitedStack = function (size, initialValues) {
     this._size = size;
@@ -45,7 +46,7 @@ var LimitedStack = function (size, initialValues) {
 
     //},
 
-    // adds to the stack
+    // adds to the stack, and returns the internal index of the added item.
     this.push = function (value) {
         if (this._topIndex != -1) {
             var nextIndex = this._adjustIndex(this._topIndex, 1)
@@ -110,8 +111,10 @@ var LimitedStack = function (size, initialValues) {
         else if (this._topIndex >= this._bottomIndex) {
             return this._stackArray.slice(this._bottomIndex, this._topIndex + 1);
         } else {
-            return this._stackArray.slice(0, this._topIndex + 1)
-                .concat(this._stackArray.slice(this._bottomIndex, this._size));
+            //return this._stackArray.slice(0, this._topIndex + 1)
+            //    .concat(this._stackArray.slice(this._bottomIndex, this._size));
+            return this._stackArray.slice(this._bottomIndex, this._size)
+                .concat(this._stackArray.slice(0, this._topIndex + 1));
         }
     },
 

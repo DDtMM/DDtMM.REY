@@ -2,8 +2,15 @@
     var $elem;
     var history = new LimitedStack(50);
     var maxReLength = 60;
-    var selectedIndex = -1;
+    var selectedNodeId = -1;
+    // last id of added history item.
+    var lastID = 0;
 
+    function createTestData() {
+        for (var i = 0, il = 95; i < il; i++) {
+            addToHistory('abcdefg ' + i.toString(), 'i', '<span class="handle">' + i + ': </span>' + 'abcdefg ' + i.toString());
+        }
+    }
     function createTokenHTML(token) {
         return '<span class="' + token.type + '">' +
             token.value.replace('<', '&lt;').replace('>', '&gt;') + '</span>';
@@ -32,45 +39,66 @@
         return styledReText;
     }
 
-    function init($parentElement) {
-        $(reyRegEx).on('reUpdated', function (event, data) {
+    // adds a regular expression to history
+    function addToHistory(reText, reOptions, reTextTokenized) {
+        //var stackIndex = history.length();
+        var displayID = ++lastID;
+        history.push({
+            reText: reText,
+            reOptions: reOptions,
+            value: '<span class="handle">' + (displayID) + ': </span>' + stylizeRe(reTextTokenized),
+            id: displayID,
+            displayID: displayID
+        });
+    }
 
+    // called when module is first added to the DOM
+    function init($parentElement) {
+
+        $(reyRegEx).on('reUpdated', function (event, data) {
+  
             var addData = (history.isEmpty() || history.peek().reText != data.reText);
 
-            if (selectedIndex > -1) {
-                if (history.val(selectedIndex).reText != data.reText) {
-                    history.popTo(selectedIndex + 1);
+            // if something is selected, and doesn't match the new re, then we want to roll back to that item and
+            // add the next one.
+            if (selectedNodeId > -1) {
+                var selectedNode = $elem.simpleTree('getNode', selectedNodeId);
+
+                if (selectedNode.reText != data.reText) {
+                    // the tree index correlates with the history index.
+                    var $nodeElem = $elem.find('[data-tree-id="' + selectedNodeId + '"]');
+                    var index = $nodeElem.parent().children().index($nodeElem);
+                    history.popTo(index + 1);
                 }
                 else addData = false;
             }
 
             if (addData) {
-                var id = history.length();
-                history.push({
-                    reText: data.reText,
-                    reOptions: data.reOptions,
-                    value: '<span class="handle">' + (id + 1) + ': </span>' + stylizeRe(reyRegEx.tokenizedPattern),
-                    id: id
-                });
-                selectedIndex = -1;
+                addToHistory(data.reText, data.reOptions, reyRegEx.tokenizedPattern);
+                selectedNodeId = -1;
                 if (my.isRunning) updateTree();
             }
         });
-
-        $elem = $parentElement;
+        $parentElement.append(
+            $('<div class="window fillHeight"/>').append(
+                $elem = $('<div />')
+            )
+        );
+        
         $elem.simpleTree({
             nodeTransform: function (data) {
                 return {
                     reText: data.reText,
                     reOptions: data.reOptions,
                     value: data.value,
-                    id: data.id
+                    id: data.id,
+                    displayID: data.displayID
                 }
             },
             click: function (ev, data) {
 
                 var nodeID = data.node.id;
-                selectedIndex = parseInt(nodeID);
+                selectedNodeId = parseInt(nodeID);
                 var $treeElem = $elem.find('[data-tree-id="' + nodeID + '"]');
                 $treeElem.nextAll().addClass('history-cut');
                 $treeElem.removeClass('history-cut').prevAll().removeClass('history-cut');
@@ -81,10 +109,12 @@
 
     // tree node mousever event handler
     function treeNodeMouseover(ev, data) {
+
         var node = data.node;
         node.originalHtml = node.value;
-        node.value = '<span class="handle">' + (node.id + 1) + ': </span>' +
+        node.value = '<span class="handle">' + (node.displayID) + ': </span>' +
             stylizeRe(regexParser.tokenize(node.reText, node.reOptions), true);
+
         $elem.simpleTree('refreshNode', node)
             .one('simpletreemouseleave', function () {
             node.value = node.originalHtml;
@@ -117,6 +147,7 @@
         }
     }
 
+    // updates the tree nodes with the history stack
     function updateTree() {
         $elem.simpleTree('swapNodes', history.getValues());
     }

@@ -390,6 +390,7 @@ var reyRegEx = (function ($) {
         if (reOptions !== undefined) my.reOptions = reOptions;
         my.reOptions = reOptions;
         my.reText = reText;
+ 
         $(my).trigger('reUpdated', { reText: my.reText, reOptions: my.reOptions });
 
         onInputsChanged();
